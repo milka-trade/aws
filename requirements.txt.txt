@@ -1,0 +1,38 @@
+pip install pyupbit
+pip install python-dotenv
+pip install openai
+pip install slack_sdk
+pip install numpy
+
+
+
+ubuntu
+1. Python 가상 환경 패키지 설치 확인
+sudo apt update
+sudo apt install python3-venv
+
+2. 가상 환경 생성
+가상 환경을 생성합니다. 아래 명령어를 입력하세요:
+python3 -m venv myenv
+
+3. 가상 환경 활성화
+source myenv/bin/activate
+
+4. 패키지 설치
+pip install pyupbit
+
+5. 스크립트 실행
+python trade0929_35_60분봉_AI5분봉_2&slack.py
+
+6. 가상 환경 비활성화
+deactivate
+
+
+
+python *.py
+
+
+(백그라운드 실행) nohup python3 *.py > output.log
+
+(ghkrdls) ps ax | grep .py
+
