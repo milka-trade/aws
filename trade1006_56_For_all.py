@@ -150,19 +150,19 @@ def filtered_tickers(tickers, held_coins):
                 print(f"No data for ticker: {t}")
                 continue
 
-            df_day = pyupbit.get_ohlcv(t, interval="day", count=3)   #2일봉 조회
-            if df_day is None or df_day.empty or 'high' not in df_day or 'low' not in df_day or 'open' not in df_day:
-                continue  
+            # df_day = pyupbit.get_ohlcv(t, interval="day", count=3)   #2일봉 조회
+            # if df_day is None or df_day.empty or 'high' not in df_day or 'low' not in df_day or 'open' not in df_day:
+            #     continue  
 
-            today_open_price = df_day['open'].iloc[0]   # 당일 시가 조회
+            today_open_price = df['open'].iloc[0]   # 당일 시가 조회
             current_price = get_current_price(t)
         
             if current_price is not None and today_open_price is not None:  # 현재가와 시가가 모두 유효한 경우에만 비교
                 if current_price >= today_open_price * 1.1: # 현재가가 시가 대비 10% 이상 상승한 경우 제외
                     continue
 
-            yesterday_volume = df_day['volume'].iloc[-2]  # 전봉 거래량
-            today_volume = df_day['volume'].iloc[-1]      # 현재봉 거래량
+            # yesterday_volume = df['volume'].iloc[-2]  # 전봉 거래량
+            today_volume = df['volume'].iloc[-1]      # 현재봉 거래량
             
             # 거래량 증가 비율 계산
             if today_volume >= 10_000_000:  # 현재봉 거래량이 5억 이상
@@ -175,10 +175,10 @@ def filtered_tickers(tickers, held_coins):
                         if current_price >= df_open:  # 현재가 양봉
                             # print(f"양봉 통과코인 : {t}, {current_price:.2f}, {df_open:.2f}")
                             # print("절취선_양봉")
-                            if current_price >= get_ma15(t) and current_price <= get_ma5(t)*1.2 : # 현재가가 15봉 이평 이상, 5봉 이평 10% 이내인 경우
+                            # if current_price >= get_ma15(t) and current_price >= get_ma5(t) : # 현재가가 15봉 이평 이상, 5봉 이평 10% 이내인 경우
                                 # print(f"이평 통과 코인 : {t}, {current_price:.2f}, {df_open:.2f}")
                                 # print("절취선_이평")
-                                filtered_tickers.append(t)
+                            filtered_tickers.append(t)
             time.sleep(0.5)  # API 호출 제한을 위한 대기
         except Exception as e:
             print(f"Error processing ticker {t: {e}}")
@@ -224,7 +224,7 @@ def get_best_ticker():
             best_k = k  # 최적 K 값도 업데이트
 
         time.sleep(1)  # API 호출 제한을 위한 대기
-    print(f"best_ticker: {bestC}, interest: {interest}, best_k: {best_k}")
+    print(f"best_ticker: {bestC}, interest: {interest:.2f}, best_k: {best_k:.2f}")
     return bestC, interest, best_k  # 최고의 코인, 수익률, K 반환
     
 def get_target_price(ticker, k):  #변동성 돌파 전략 구현
@@ -369,18 +369,18 @@ def trade_buy(ticker, k):
 
     if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 5000 :  # 매수 조건 확인
         try_time = current_time.strftime('%Y-%m-%d %H:%M:%S')
-        # print(f"{try_time} 코인: {ticker}, 목표가: {target_price}, 이평5: {ma5:.2f}, 이평20: {ma20:.2f}, 현재가: {current_price}")
+        # print(f"{try_time} 코인: {ticker}, 목표가: {target_price}, 이평5: {ma5:.2f}, 이평20: {ma15:.2f}, 현재가: {current_price}")
         if target_price <= current_price :
-            if current_price >= ma15 :
-                ai_decision = get_ai_decision(ticker)  # AI의 판단을 구함
+            # if current_price >= ma15 :
+                # ai_decision = get_ai_decision(ticker)  # AI의 판단을 구함
                 # print(f"최고의 코인: {ticker}, AI의 판단: {ai_decision}")
-                print(f"{try_time} 코인: {ticker}, 목표가: {target_price}, 이평5: {ma5:.2f}, 이평15: {ma15:.2f}, 현재가: {current_price}, AI의 판단: {ai_decision}")
+                print(f"{try_time} 코인: {ticker}, 목표가: {target_price}, 현재가: {current_price}")    #이평5: {ma5:.2f}, 이평15: {ma15:.2f},
                 # send_slack_message('#api_test', f"{try_time} 코인: {ticker}, 목표가: {target_price}, 이평5: {ma5:.2f}, 이평20: {ma20:.2f}, 현재가: {current_price}, AI의 판단: {ai_decision}")
                 try:
                         buy_order = upbit.buy_market_order(ticker, krw*0.9995)
                         buy_time = current_time.strftime('%Y-%m-%d %H:%M:%S')
-                        # print(f"매수 시간: {buy_time}, AI의 판단: {ai_decision}, Ticker: {ticker}, 현재가: {current_price}")
-                        send_slack_message('#api_test', f"매수 시간: {buy_time}, Ticker: {ticker}, 현재가: {current_price}, AI의 판단: {ai_decision}")
+                        print(f"매수 시간: {buy_time}, Ticker: {ticker}, 현재가: {current_price}")
+                        send_slack_message('#api_test', f"매수 시간: {buy_time}, Ticker: {ticker}, 현재가: {current_price}")
                         return buy_order['price'], target_price
                         
                 except Exception as e:
@@ -449,17 +449,18 @@ def trade_sell(ticker, buyed_amount, avg_buy_price):
         sell_time = current_time_utc.strftime('%Y-%m-%d %H:%M:%S')  # Log sell time in UTC
         send_slack_message('#api_test', f"Sold full balance at: {sell_time}, Ticker: {ticker}, Profit: {profit_rate:.2f}%")
         return sell_order
-
+    
     if evaluation_amount > 5000:  # 평가 금액이 5000 이상인 경우에만 매도 조건 체크
         if ticker.split("-")[1] not in ["BTC", "ETH"]:
             if profit_rate > 0.55:  # 수익률 조건
                 ai_decision = get_ai_decision(ticker)  
-
-                if ai_decision == 'SELL' or profit_rate > 5.0:  # AI의 판단이 SELL이거나 수익률이 5.0%를 넘는 경우 매도
+                try_sell_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 매도 시간 기록
+                print(f"매도시도: {try_sell_time}, Ticker: {ticker}, 현재가:{current_price}, 수익률: {profit_rate:.2f}%, AI판단: {ai_decision}")
+                if ai_decision != 'BUY' or profit_rate > 5.0:  # AI의 판단이 NOT BUY이거나 수익률이 5.0%를 넘는 경우 매도
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)  # 시장가로 매도
                     sell_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 매도 시간 기록
-                    print(f"매도: {sell_time}, Ticker: {ticker}, 수익률: {profit_rate:.2f}%, AI판단: {ai_decision}")
-                    send_slack_message('#api_test', f"매도: {sell_time}, Ticker: {ticker}, 수익률: {profit_rate:.2f}%, AI판단: {ai_decision}")
+                    print(f"매도: {sell_time}, Ticker: {ticker}, 현재가:{current_price}, 수익률: {profit_rate:.2f}%, AI판단: {ai_decision}")
+                    send_slack_message('#api_test', f"매도: {sell_time}, Ticker: {ticker}, 현재가:{current_price}, 수익률: {profit_rate:.2f}%, AI판단: {ai_decision}")
                     return sell_order
 
             # if profit_rate < -4:  # -4% 이하 손실 시 AI 판단 후 매도
