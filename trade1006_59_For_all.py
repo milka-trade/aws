@@ -34,7 +34,7 @@ def load_ohlcv(ticker):
                 print(f"No data returned for ticker: {ticker}")
         except Exception as e:
             print(f"Error loading data for ticker {ticker}: {e}")
-            time.sleep(10)  # API 호출 제한을 위한 대기
+            time.sleep(30)  # API 호출 제한을 위한 대기
     return df_tickers.get(ticker)
 
 def get_balance(ticker):    #잔고조회
@@ -123,8 +123,8 @@ def filtered_tickers(tickers, held_coins):
             df = load_ohlcv(t)  # 캐싱된 데이터를 사용
             # print(df)
             if df is None or df.empty:
-                # print(f"No data for ticker: {t}")
-                send_slack_message('#api_test', f"No data for ticker: {t}")
+                print(f"No data for ticker: {t}")
+                # send_slack_message('#api_test', f"No data for ticker: {t}")
                 continue
 
             df_day = pyupbit.get_ohlcv(t, interval="day", count=3)   #3일봉 조회
@@ -349,17 +349,17 @@ def trade_sell(ticker, buyed_amount, avg_buy_price):
     if is_sell_time_utc():          # Check if we're within the special sell time frame (23:59:00 - 23:59:50 UTC)
         ai_decision = get_ai_decision(ticker)  
         sell_order = upbit.sell_market_order(ticker, buyed_amount)  # Market sell order
-        if ai_decision != 'BUY' :  # AI의 판단이 NOT BUY이거나 수익률이 1.0%를 넘는 경우 매도
+        if ai_decision != 'BUY' :  # AI의 판단이 NOT BUY이면 매도
             sell_time = current_time_utc.strftime('%Y-%m-%d %H:%M:%S')  # Log sell time in UTC
-            print(f"매도제한시간 : {sell_time}")
+            print(f"전량매도시간 : {sell_time}")
             send_slack_message('#api_test', f"Sold full balance at: {sell_time}, Ticker: {ticker}, price: {current_price}, Profit: {profit_rate:.2f}%")
             return sell_order
     
     if buyed_amount > 5000:  # 평가 금액이 5000 이상인 경우
         if ticker.split("-")[1] not in ["BTC", "ETH"]:
-            if profit_rate > 0.6:  # 수익률 조건
+            if profit_rate > 0.65:  # 수익률 조건
                 ai_decision = get_ai_decision(ticker)  
-                if ai_decision != 'BUY' or profit_rate > 1.0:  # AI의 판단이 NOT BUY이거나 수익률이 1.0%를 넘는 경우 매도
+                if ai_decision != 'BUY' or profit_rate > 1.3:  # AI의 판단이 NOT BUY이거나 수익률이 1.0%를 넘는 경우 매도
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)  # 시장가로 매도
                     sell_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 매도 시간 기록
                     # print(f"매도: {sell_time}, Ticker: {ticker}, 현재가:{current_price}, 수익률: {profit_rate:.2f}%, AI판단: {ai_decision}")
@@ -442,8 +442,8 @@ while True:
         else:  # 잔고가 5천원 이상일 경우
             best_ticker, interest, best_k = get_best_ticker()  # 최고의 코인 조회
             if best_ticker:  # 최고의 코인이 존재할 경우 매수시도
-                # print(f"매수 시도 : best_ticker {best_ticker}, interest {interest:.2f}, best_k : {best_k:.2f}")
-                send_slack_message('#api_test', f"매수 시도 : best_ticker {best_ticker}, interest: {interest:.2f}, best_k : {best_k:.2f}")
+                print(f"매수 시도 : best_ticker {best_ticker}, interest {interest:.2f}, best_k : {best_k:.2f}")
+                # send_slack_message('#api_test', f"매수 시도 : best_ticker {best_ticker}, interest: {interest:.2f}, best_k : {best_k:.2f}")
                 result = trade_buy(best_ticker, best_k)  # 매수 실행
                 time.sleep(360)  # 매수 후 잠시 대기
                 
