@@ -34,7 +34,7 @@ def load_ohlcv(ticker):
                 print(f"No data returned for ticker: {ticker}")
         except Exception as e:
             print(f"Error loading data for ticker {ticker}: {e}")
-            time.sleep(5)  # API 호출 제한을 위한 대기
+            time.sleep(10)  # API 호출 제한을 위한 대기
     return df_tickers.get(ticker)
 
 def get_balance(ticker):    #잔고조회
@@ -135,17 +135,18 @@ def filtered_tickers(tickers, held_coins):
             current_price = get_current_price(t)
         
             if current_price is not None and today_open_price is not None:  # 현재가와 시가가 모두 유효한 경우에만 비교
-                if current_price >= today_open_price * 1.08: # 현재가가 시가 대비 8% 이상 상승한 경우 제외
+                if current_price >= today_open_price * 1.05: # 현재가가 시가 대비 5% 이상 상승한 경우 제외
                     continue
 
             # yesterday_volume = df['volume'].iloc[-2]  # 전봉 거래량
             today_volume = df_day['volume'].iloc[-1]      # 현재봉 거래량
             
             # 거래량 증가 비율 계산
-            if today_volume >= 20_000_000:  # 현재봉 거래량이 15백만 이상
+            if today_volume >= 20_000_000:  # 현재봉 거래량이 20백만 이상
                 df_open=df['open'].iloc[-1]
-                if current_price >= df_open and current_price <= df_open*1.03 :  # 현재가 양봉, 분봉의 3% 이내 상승
-                    if current_price <= get_ma5(t)*1.1:  # 5이평의 10% 이내
+                if current_price >= df_open and current_price >= get_ma5(t) and current_price <= df_open*1.02 :  # 현재가 양봉, 분봉의 2% 이내 상승
+                    if get_ma15(t) > get_ma5(t) :
+                        #if current_price <= get_ma5(t)*1.1:  # 5이평의 10% 이내
                         filtered_tickers.append(t)
                         time.sleep(5)  # API 호출 제한을 위한 대기
         except Exception as e:
