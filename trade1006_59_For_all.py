@@ -334,8 +334,8 @@ def calculate_profit_rate(buyed_amount, avg_buy_price, ticker):
 
 def is_sell_time_utc():     #Checks if the current time is between 23:59:00 and 23:59:50 UTC
     current_time_utc = datetime.now(UTC)
-    sell_start = current_time_utc.replace(hour=23, minute=59, second=0, microsecond=0)      # Define the sell window (23:59:00 to 23:59:50 UTC)
-    sell_end = current_time_utc.replace(hour=23, minute=59, second=50, microsecond=0)
+    sell_start = current_time_utc.replace(hour=0, minute=0, second=0, microsecond=0)      # Define the sell window (23:59:00 to 23:59:50 UTC)
+    sell_end = current_time_utc.replace(hour=0, minute=0, second=10, microsecond=0)
     return sell_start <= current_time_utc <= sell_end
 
 def trade_sell(ticker, buyed_amount, avg_buy_price):
@@ -349,7 +349,7 @@ def trade_sell(ticker, buyed_amount, avg_buy_price):
     if is_sell_time_utc():          # Check if we're within the special sell time frame (23:59:00 - 23:59:50 UTC)
         ai_decision = get_ai_decision(ticker)  
         sell_order = upbit.sell_market_order(ticker, buyed_amount)  # Market sell order
-        if ai_decision != 'BUY' :  # AI의 판단이 NOT BUY이면 매도
+        if ai_decision != 'BUY' and profit_rate > -0.1 :  # AI의 판단이 NOT BUY이면 매도
             sell_time = current_time_utc.strftime('%Y-%m-%d %H:%M:%S')  # Log sell time in UTC
             print(f"전량매도시간 : {sell_time}")
             send_slack_message('#api_test', f"Sold full balance at: {sell_time}, Ticker: {ticker}, price: {current_price}, Profit: {profit_rate:.2f}%")
