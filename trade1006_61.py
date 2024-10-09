@@ -22,6 +22,7 @@ def send_slack_message(channel, message):
         client.chat_postMessage(channel=channel, text=message)
     except Exception as e:
         print(f"슬랙 메시지 전송 실패 : {e}")
+        time.sleep(10)  # API 호출 제한을 위한 대기
         
 df_tickers = {}    # 전역변수:일봉 데이터프레임
 
@@ -45,6 +46,7 @@ def get_balance(ticker):    #잔고조회
                 return float(b['balance']) if b['balance'] is not None else 0
     except Exception as e:
         print(f"잔고 조회 오류: {e}")
+        time.sleep(10)  # API 호출 제한을 위한 대기
         return 0
     return 0  # 잔고가 없거나 조회에 실패한 경우 0 반환
 
@@ -64,8 +66,9 @@ def get_current_price(ticker):
         return current_price
     except Exception as e:
         print(f"현재가 조회 오류 ({ticker}): {e}")
+        time.sleep(10)  # API 호출 제한을 위한 대기
         return None
-    
+
 def calculate_moving_average(df, window):
     """이동평균선 계산"""
     return df['close'].rolling(window=window).mean().iloc[-1] if df is not None and not df.empty else 0
@@ -152,6 +155,7 @@ def filtered_tickers(tickers, held_coins):
                             time.sleep(5)  # API 호출 제한을 위한 대기
         except Exception as e:
             print(f"Error processing ticker {t: {e}}")
+            time.sleep(10)  # API 호출 제한을 위한 대기
 
     return filtered_tickers
 
@@ -167,6 +171,7 @@ def get_best_ticker():
     except Exception as e:
         send_slack_message('#api_test', f"티커 조회 중 오류 발생: {e}")
         print(f"티커 조회 중 오류 발생: {e}")
+        time.sleep(10)  # API 호출 제한을 위한 대기
         return None, None, None
 
     filtered_list = filtered_tickers(tickers, held_coins)
@@ -252,6 +257,7 @@ def get_ai_decision(ticker):
     except Exception as e:
         print(f"AI 요청 중 오류 발생: {e}")
         send_slack_message('#api_test', f"AI 요청 중 오류 발생: {e}")
+        time.sleep(10)  # API 호출 제한을 위한 대기
                 
         return None  # 오류 발생 시 None 반환
     
@@ -265,6 +271,7 @@ def get_ai_decision(ticker):
                 return decision
         except json.JSONDecodeError:
             print("응답을 JSON으로 파싱하는 데 실패했습니다.")
+            time.sleep(10)  # API 호출 제한을 위한 대기
             send_slack_message('#api_test', "응답을 JSON으로 파싱하는 데 실패")
     
     print("유효하지 않은 응답입니다.")
@@ -320,6 +327,7 @@ def trade_buy(ticker, k):
                     except Exception as e:
                         # print(f"매수 주문 실행 중 오류 발생: {e}")
                         send_slack_message('#api_test', f"매수 주문 실행 중 오류 발생: {e}")
+                        time.sleep(10)  # API 호출 제한을 위한 대기
                         return "Buy order failed", None
 
 def calculate_profit_rate(buyed_amount, avg_buy_price, ticker):
@@ -415,6 +423,7 @@ def send_profit_report():
         except Exception as e:            
             print(f"수익률 보고 중 오류 발생: {e}")
             send_slack_message('#api_test', f"수익률 보고 중 오류 발생: {e}")
+            time.sleep(10)  # API 호출 제한을 위한 대기
 
 
 # 자동매매 시작
@@ -455,4 +464,4 @@ while True:
     except Exception as e:
         print(f"에러 발생: {e}")
         send_slack_message('#api_test',f"에러 발생: {e}")
-        time.sleep(1)
+        time.sleep(10)
