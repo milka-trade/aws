@@ -355,14 +355,14 @@ def trade_sell(ticker, buyed_amount, avg_buy_price):
     profit_rate = calculate_profit_rate(buyed_amount, avg_buy_price, ticker)       # 수익률 계산
 
 
-    # if is_sell_time_utc():          # Check if we're within the special sell time frame (23:59:00 - 23:59:50 UTC)
-    #     ai_decision = get_ai_decision(ticker)  
-    #     sell_order = upbit.sell_market_order(ticker, buyed_amount)  # Market sell order
-    #     if ai_decision != 'BUY' :  # AI의 판단이 NOT BUY이거나 수익률이 1.0%를 넘는 경우 매도
-    #         sell_time = current_time_utc.strftime('%Y-%m-%d %H:%M:%S')  # Log sell time in UTC
-    #         print(f"매도제한시간 : {sell_time}")
-    #         send_slack_message('#api_test', f"Sold full balance at: {sell_time}, Ticker: {ticker}, price: {current_price}, Profit: {profit_rate:.2f}%")
-    #         return sell_order
+    if is_sell_time_utc():          # Check if we're within the special sell time frame (23:59:00 - 23:59:50 UTC)
+        ai_decision = get_ai_decision(ticker)  
+        sell_order = upbit.sell_market_order(ticker, buyed_amount)  # Market sell order
+        if ai_decision != 'BUY':  # AI의 판단이 NOT BUY이면 매도
+            sell_time = current_time_utc.strftime('%Y-%m-%d %H:%M:%S')  # Log sell time in UTC
+            print(f"매도제한시간 : {sell_time}")
+            send_slack_message('#api_test', f"Sold full balance at: {sell_time}, Ticker: {ticker}, price: {current_price}, Profit: {profit_rate:.2f}%, AI판단: {ai_decision}")
+            return sell_order
     
     if buyed_amount > 5000:  # 평가 금액이 5000 이상인 경우
         if ticker.split("-")[1] not in ["BTC", "ETH"]:
