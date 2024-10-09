@@ -21,7 +21,8 @@ def send_slack_message(channel, message):
     try:
         client.chat_postMessage(channel=channel, text=message)
     except Exception as e:
-        print(f"슬랙 메시지 전송 실패 : {e}")
+        err_time = current_time.strftime('%Y-%m-%d %H:%M:%S')
+        print(f"{err_time} 슬랙 메시지 전송 실패 : {e}")
         time.sleep(10)  # API 호출 제한을 위한 대기
         
 df_tickers = {}    # 전역변수:일봉 데이터프레임
