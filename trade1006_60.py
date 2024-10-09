@@ -22,7 +22,7 @@ def send_slack_message(channel, message):
         client.chat_postMessage(channel=channel, text=message)
     except Exception as e:
         print(f"슬랙 메시지 전송 실패 : {e}")
-
+        
 df_tickers = {}    # 전역변수:일봉 데이터프레임
 
 def load_ohlcv(ticker):
@@ -306,7 +306,7 @@ def trade_buy(ticker, k):
 
         if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 5000 :  # 매수 조건 확인
             try_time = current_time.strftime('%Y-%m-%d %H:%M:%S')
-            if target_price <= current_price and current_price < target_price*1.1 :  #현재가가 목표가 이상이면서 목표가의 10% 이내
+            if target_price <= current_price and current_price < target_price*1.03 :  #현재가가 목표가 이상이면서 목표가의 3% 이내
                 ai_decision = get_ai_decision(ticker)  
                 if ai_decision != 'SELL' :  # AI의 판단이 NOT SELL이면
                     print(f"{try_time} 코인: {ticker}, 목표가: {target_price}, 현재가: {current_price}")    #이평5: {ma5:.2f}, 이평15: {ma15:.2f}, , AI: {ai_decision}
