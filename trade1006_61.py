@@ -23,7 +23,7 @@ def send_slack_message(channel, message):
     except Exception as e:
         err_time = current_time.strftime('%Y-%m-%d %H:%M:%S')
         print(f"{err_time} 슬랙 메시지 전송 실패 : {e}")
-        time.sleep(60)  # API 호출 제한을 위한 대기
+        time.sleep(5)  # API 호출 제한을 위한 대기
         
 df_tickers = {}    # 전역변수:일봉 데이터프레임
 
@@ -34,9 +34,10 @@ def load_ohlcv(ticker):
             df_tickers[ticker] = pyupbit.get_ohlcv(ticker, interval="minute60", count=30)
             if df_tickers[ticker] is None or df_tickers[ticker].empty:
                 print(f"No data returned for ticker: {ticker}")
+                time.sleep(1)  # API 호출 제한을 위한 대기
         except Exception as e:
             print(f"Error loading data for ticker {ticker}: {e}")
-            time.sleep(10)  # API 호출 제한을 위한 대기
+            time.sleep(5)  # API 호출 제한을 위한 대기
     return df_tickers.get(ticker)
 
 def get_balance(ticker):    #잔고조회
@@ -45,9 +46,10 @@ def get_balance(ticker):    #잔고조회
         for b in balances:
             if b['currency'] == ticker:  # 요청한 통화의 잔고를 찾음
                 return float(b['balance']) if b['balance'] is not None else 0
+                time.sleep(1)  # API 호출 제한을 위한 대기
     except Exception as e:
         print(f"잔고 조회 오류: {e}")
-        time.sleep(10)  # API 호출 제한을 위한 대기
+        time.sleep(5)  # API 호출 제한을 위한 대기
         return 0
     return 0  # 잔고가 없거나 조회에 실패한 경우 0 반환
 
@@ -61,9 +63,8 @@ def get_current_price(ticker):
         orderbook = pyupbit.get_orderbook(ticker=ticker)
         if orderbook is None or "orderbook_units" not in orderbook or not orderbook["orderbook_units"]:
             raise ValueError(f"'{ticker}'에 대한 유효한 orderbook이 없습니다.")
-        
         current_price = orderbook["orderbook_units"][0]["ask_price"]
-
+        time.sleep(1)  # API 호출 제한을 위한 대기
         return current_price
     except Exception as e:
         print(f"현재가 조회 오류 ({ticker}): {e}")
@@ -111,6 +112,7 @@ def get_best_k(ticker="KRW-BTC"):
         if ror > interest:  # 이전 수익률보다 높으면 업데이트
             interest = ror
             bestK = k
+            time.sleep(1)  # API 호출 제한을 위한 대기
 
     return bestK
 
@@ -153,10 +155,10 @@ def filtered_tickers(tickers, held_coins):
                         ai_decision = get_ai_decision(t)  
                         if ai_decision != 'SELL' :  # AI의 판단이 NOT SELL이면
                             filtered_tickers.append(t)
-                            time.sleep(5)  # API 호출 제한을 위한 대기
+                            time.sleep(1)  # API 호출 제한을 위한 대기
         except Exception as e:
             print(f"Error processing ticker {t: {e}}")
-            time.sleep(10)  # API 호출 제한을 위한 대기
+            time.sleep(5)  # API 호출 제한을 위한 대기
 
     return filtered_tickers
 
@@ -200,7 +202,7 @@ def get_best_ticker():
             interest = df['hpr'].iloc[-1]
             best_k = k  # 최적 K 값도 업데이트
 
-        time.sleep(5)  # API 호출 제한을 위한 대기
+        time.sleep(1)  # API 호출 제한을 위한 대기
 
     return bestC, interest, best_k  # 최고의 코인, 수익률, K 반환
     
@@ -258,7 +260,7 @@ def get_ai_decision(ticker):
     except Exception as e:
         print(f"AI 요청 중 오류 발생: {e}")
         send_slack_message('#api_test', f"AI 요청 중 오류 발생: {e}")
-        time.sleep(10)  # API 호출 제한을 위한 대기
+        time.sleep(5)  # API 호출 제한을 위한 대기
                 
         return None  # 오류 발생 시 None 반환
     
@@ -272,7 +274,7 @@ def get_ai_decision(ticker):
                 return decision
         except json.JSONDecodeError:
             print("응답을 JSON으로 파싱하는 데 실패했습니다.")
-            time.sleep(10)  # API 호출 제한을 위한 대기
+            time.sleep(5)  # API 호출 제한을 위한 대기
             send_slack_message('#api_test', "응답을 JSON으로 파싱하는 데 실패")
     
     print("유효하지 않은 응답입니다.")
@@ -319,16 +321,23 @@ def trade_buy(ticker, k):
                 if ai_decision != 'SELL' :  # AI의 판단이 NOT SELL이면
                     print(f"{try_time} 코인: {ticker}, 목표가: {target_price}, 현재가: {current_price}")    #이평5: {ma5:.2f}, 이평15: {ma15:.2f}, , AI: {ai_decision}
                     try:
-                        buy_order = upbit.buy_market_order(ticker, krw*0.9995)
+                        # 매수 금액 결정
+                        if krw > 250000:  # 현금 잔고가 25만원을 넘는 경우
+                            buy_amount = krw * 0.5
+                        else:  # 그 외의 경우
+                            buy_amount = krw * 0.9995
+                            
+                        buy_order = upbit.buy_market_order(ticker, buy_amount)
                         buy_time = current_time.strftime('%Y-%m-%d %H:%M:%S')
                         print(f"매수 시간: {buy_time}, Ticker: {ticker}, 현재가: {current_price}")
                         send_slack_message('#api_test', f"매수 시간: {buy_time}, {ticker}, 목표가: {target_price} 현재가: {current_price} 이평5: {ma5:.2f}, 이평15: {ma15:.2f}" )
+                        time.sleep(5)  # API 호출 제한을 위한 대기
                         return buy_order['price'], target_price
                             
                     except Exception as e:
                         # print(f"매수 주문 실행 중 오류 발생: {e}")
                         send_slack_message('#api_test', f"매수 주문 실행 중 오류 발생: {e}")
-                        time.sleep(10)  # API 호출 제한을 위한 대기
+                        time.sleep(5)  # API 호출 제한을 위한 대기
                         return "Buy order failed", None
 
 def calculate_profit_rate(buyed_amount, avg_buy_price, ticker):
@@ -374,6 +383,7 @@ def trade_sell(ticker, buyed_amount, avg_buy_price):
                     sell_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 매도 시간 기록
                     # print(f"매도: {sell_time}, Ticker: {ticker}, 현재가:{current_price}, 수익률: {profit_rate:.2f}%, AI판단: {ai_decision}")
                     send_slack_message('#api_test', f"매도: {sell_time}, Ticker: {ticker}, 현재가:{current_price}, 수익률: {profit_rate:.2f}%, AI판단: {ai_decision}")
+                    time.sleep(1)  # API 호출 제한을 위한 대기
                     return sell_order
 
 def sell_all_assets():
@@ -424,7 +434,7 @@ def send_profit_report():
         except Exception as e:            
             print(f"수익률 보고 중 오류 발생: {e}")
             send_slack_message('#api_test', f"수익률 보고 중 오류 발생: {e}")
-            time.sleep(10)  # API 호출 제한을 위한 대기
+            time.sleep(5)  # API 호출 제한을 위한 대기
 
 
 # 자동매매 시작
@@ -440,21 +450,21 @@ while True:
     try:
         krw_balance = get_balance("KRW")  # 현재 KRW 잔고 조회
         
-        # 매수 제한 시간대 체크
-        if is_within_restricted_time():
-            print("현재 매수 제한 시간대입니다. 매수를 진행하지 않습니다.")
-            result = trade_buy(best_ticker, best_k)  # 매수 실행
+        # # 매수 제한 시간대 체크
+        # if is_within_restricted_time():
+        #     print("현재 매수 제한 시간대입니다. 매수를 진행하지 않습니다.")
+        #     result = trade_buy(best_ticker, best_k)  # 매수 실행
                 
         if krw_balance < 5000:      # 잔고가 5천원 미만일 경우 보유 코인 매도
             sell_all_assets()  # 보유 자산 매도
-            time.sleep(5)  # 5초 대기 후 재 실행
+            time.sleep(10)  # 5초 대기 후 재 실행
         
 
         else:  # 잔고가 5천원 이상일 경우
             best_ticker, interest, best_k = get_best_ticker()  # 최고의 코인 조회
             if best_ticker:  # 최고의 코인이 존재할 경우 매수시도
                 # print(f"매수 시도 : best_ticker {best_ticker}, interest {interest:.2f}, best_k : {best_k:.2f}")
-                send_slack_message('#api_test', f"매수 시도 : best_ticker {best_ticker}, interest: {interest:.2f}, best_k : {best_k:.2f}")
+                # send_slack_message('#api_test', f"매수 시도 : best_ticker {best_ticker}, interest: {interest:.2f}, best_k : {best_k:.2f}")
                 result = trade_buy(best_ticker, best_k)  # 매수 실행
                 time.sleep(360)  # 매수 후 잠시 대기
                 
