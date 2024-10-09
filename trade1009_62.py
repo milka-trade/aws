@@ -431,7 +431,7 @@ def send_profit_report():
                     ai_decision = get_ai_decision(ticker)
                     try_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 보고시간
                     profit_rate = calculate_profit_rate(buyed_amount, avg_buy_price, ticker)    # 수익률 계산
-                    report_message += f"{try_time} {b['currency']}: 현재가,{current_price}, 평균가 : {avg_buy_price}, 수익률 {profit_rate:.2f}%, ai판단:{ai_decision}"
+                    report_message += f"{try_time} {b['currency']}: 현재가{current_price} 평균가 : {avg_buy_price} 수익률 {profit_rate:.2f}% ai판단:{ai_decision}"
 
             send_discord_message(report_message)  # 슬랙으로 보고서 전송
         except Exception as e:            
