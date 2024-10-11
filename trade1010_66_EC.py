@@ -79,19 +79,19 @@ def calculate_moving_average(df, window):
     return df['close'].rolling(window=window).mean().iloc[-1] if df is not None and not df.empty else 0
 
 def get_ma5(ticker):
-    df = load_ohlcv(ticker)   # 데이터프레임을 한 번 로드하고 재사용
+    df = load_ohlcv(ticker)   # 캐싱된 데이터를 사용
     return calculate_moving_average(df, 5)
 
 def get_ma10(ticker):
-    df = load_ohlcv(ticker)   # 데이터프레임을 한 번 로드하고 재사용
+    df = load_ohlcv(ticker)   # 캐싱된 데이터를 사용
     return calculate_moving_average(df, 10)
 
 def get_ma15(ticker):
-    df = load_ohlcv(ticker)   # 데이터프레임을 한 번 로드하고 재사용
+    df = load_ohlcv(ticker)   # 캐싱된 데이터를 사용
     return calculate_moving_average(df, 15)
 
 def get_ma20(ticker):
-    df = load_ohlcv(ticker)   # 데이터프레임을 한 번 로드하고 재사용
+    df = load_ohlcv(ticker)   # 캐싱된 데이터를 사용
     return calculate_moving_average(df, 20)
 
 def get_best_k(ticker="KRW-BTC"):
@@ -103,7 +103,7 @@ def get_best_k(ticker="KRW-BTC"):
     if df is None or df.empty:
         return bestK  # 데이터가 없으면 초기 K 반환
 
-    for k in np.arange(0.1, 1.0, 0.1):  # K 값을 0.1부터 0.1까지 반복
+    for k in np.arange(0.1, 1.0, 0.1):  # K 값을 0.1부터 0.9까지 반복
         df['range'] = (df['high'] - df['low']) * k      #변동성 계산
         df['target'] = df['open'] + df['range'].shift(1)  # 매수 목표가 설정
         fee = 0.0005  # 거래 수수료 (0.05%로 설정)
@@ -288,8 +288,6 @@ def get_ai_decision(ticker):
     send_discord_message("유효하지 않은 응답")
     return None  # 유효하지 않은 경우 None 반환
 
-# KST = pytz.timezone('Asia/Seoul')
-
 def trade_buy(ticker, k):
     """주어진 티커에 대해 매수 실행"""
     current_price = get_current_price(ticker) 
@@ -304,12 +302,12 @@ def trade_buy(ticker, k):
             # send_discord_message(f"매수시도: {ticker}, 목표가: {target_price}, 현재가: {current_price}")
             if target_price <= current_price and current_price < target_price*1.05 :  #현재가가 목표가 이상이면서 목표가의 5% 이내
                 ai_decision = get_ai_decision(ticker)  
-                # print(ai_decision)
+                # print(ai_decision)   #검증용
                 # send_discord_message(f"AI: {ai_decision}")
                 if ai_decision != 'SELL' :  # AI의 판단이 NOT SELL이면
                     try:
                         buy_order = upbit.buy_market_order(ticker, 160_000)
-                        # print(f"매수: {ticker}, 현재가: {current_price}")
+                        # print(f"매수: {ticker}, 현재가: {current_price}")   #검증용
                         send_discord_message(f"매수 {ticker}, 목표가: {target_price} 현재가: {current_price} AI: {ai_decision}")
                         # time.sleep(5)  # API 호출 제한을 위한 대기
                         return buy_order['price'], target_price
@@ -333,9 +331,9 @@ def trade_sell(ticker):
     current_price = get_current_price(ticker)
     currency = ticker.split("-")[1]
     buyed_amount = get_balance(currency)
-    # print(buyed_amount)
+    # print(buyed_amount)    #검증용
     avg_buy_price = upbit.get_avg_buy_price(currency)
-    # print(avg_buy_price)
+    # print(avg_buy_price)    #검증용
 
     profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0  # 수익률 계산
     # print(profit_rate)
@@ -356,7 +354,7 @@ def trade_sell(ticker):
             if profit_rate > 0.6:  # 0.6% 이상 수익률일 때 AI의 판단을 구함
                 ai_decision = get_ai_decision(ticker)  # AI의 판단을 구함
                 send_discord_message(f"{ticker} ai:{ai_decision}")
-                # print(f"ai:{ai_decision}")            
+                # print(f"ai:{ai_decision}")             #검증용
                 if ai_decision != 'BUY' or profit_rate > 1.2:  # AI의 판단이 not buy or 수익률이 1.1%를 넘는 경우 매도
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)  # 시장가로 매도
                     # sell_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 매도 시간 기록
@@ -393,7 +391,6 @@ def send_profit_report():
 
                 if buyed_amount > 0:
                     ai_decision = get_ai_decision(ticker)
-                    # try_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 보고시간
                     profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0  # 수익률 계산
                     report_message += f"{b['currency']} 현재가{current_price} 평균가 {avg_buy_price} 수익률 {profit_rate:.1f}% ai:{ai_decision} \n"
 
@@ -429,7 +426,7 @@ while True:
                 if b['currency'] not in ["KRW", "BTC", "ETH", "QI", "ONX", "ETHF", "ETHW", "PURSE"]:  # 보유 잔고가 있는 경우
                     ticker = f"KRW-{b['currency']}"  # 티커 형식 맞추기
                     trade_sell(ticker)  # 매도 실행
-            time.sleep(5)  # 1초 대기 후 재 실행
+            time.sleep(5)  # 5초 대기 후 재 실행
 
         else:  # 잔고가 10만원 이상일 경우
             # print(best_ticker, interest, best_k)   #검증용
@@ -446,7 +443,7 @@ while True:
                 for b in balances:
                     if b['currency'] not in ["KRW",  "BTC", "ETH", "QI", "ONX", "ETHF", "ETHW", "PURSE"]:  # 해당 코인 제외
                         ticker = f"KRW-{b['currency']}"  # 티커 형식 맞추기
-                        # print(ticker)
+                        # print(ticker)    #검증용
                         trade_sell(ticker)  # 매도 실행
                         
                 best_ticker, interest, best_k = get_best_ticker()  # 최고의 코인 조회
