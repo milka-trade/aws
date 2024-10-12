@@ -161,9 +161,9 @@ def filtered_tickers(tickers, held_coins):
                 df_close1=df['close'].iloc[-1]
                 df_close2=df['close'].iloc[-2]
                 if df_open <= current_price and current_price <= df_open*1.03 :  # 현재가 시가의 0~3% 이내
-                    if get_ma5(t) <= get_ma60(t):  # 5이평이 60이평 이하
+                    if get_ma10(t) <= get_ma5(t) and get_ma5(t) <= get_ma60(t):  # 5이평이 10이평 이상 60이평 이하
                         # if df_close1 >= df_close2 :     # 1봉 전 종가보다 0봉 전 종가가 큰 경우
-                            if get_ma5(t) <= current_price and current_price <= get_ma5(t)*1.03  :  # 현재가가 5이평 0~3%이내
+                            if get_ma5(t) <= current_price and current_price <= get_ma5(t)*1.05  :  # 현재가가 5이평 0~5%이내
                                 filtered_tickers.append(t)
                                 # print(filtered_tickers)    #검증용
                                 time.sleep(0.5)  # API 호출 제한을 위한 대기
@@ -299,7 +299,7 @@ def trade_buy(ticker, k):
 
     if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 5000 :  # 매수 조건 확인
         # send_discord_message(f"매수시도 {ticker}, 목표가 {target_price:.3f} 현재가 {current_price:.3f}")
-        if target_price <= current_price and current_price < target_price*1.05 :  #현재가가 목표가 이상이면서 목표가의 5% 이내
+        if target_price*0.95 <= current_price and current_price < target_price*1.05 :  #현재가가 목표가의 95%~105% 이내
             ai_decision = get_ai_decision(ticker)  
             if ai_decision != 'SELL' :  # AI의 판단이 NOT SELL이면
                 try:
