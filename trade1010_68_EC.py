@@ -160,10 +160,10 @@ def filtered_tickers(tickers, held_coins):
                 df_open=df['open'].iloc[0]
                 df_close1=df['close'].iloc[-1]
                 df_close2=df['close'].iloc[-2]
-                if df_open <= current_price and current_price <= df_open*1.03 :  # 현재가 시가의 0~3% 이내
-                    if get_ma10(t) <= get_ma5(t) and get_ma5(t) <= get_ma60(t):  # 5이평이 10이평 이상 60이평 이하
+                if df_open <= current_price and current_price <= df_open*1.05 :  # 현재가 시가의 0~5% 이내
+                    if get_ma10(t) <= get_ma5(t) and get_ma5(t) <= current_price:  # 5이평이 10이평 이상 60이평 이하
                         # if df_close1 >= df_close2 :     # 1봉 전 종가보다 0봉 전 종가가 큰 경우
-                            if get_ma5(t) <= current_price and current_price <= get_ma5(t)*1.05  :  # 현재가가 5이평 0~5%이내
+                              # 현재가가 5이평 이상
                                 filtered_tickers.append(t)
                                 # print(filtered_tickers)    #검증용
                                 time.sleep(0.5)  # API 호출 제한을 위한 대기
@@ -292,8 +292,6 @@ def trade_buy(ticker, k):
     """주어진 티커에 대해 매수 실행"""
     current_price = get_current_price(ticker) 
     target_price = get_target_price(ticker, k)
-    currency = ticker.split("-")[1]
-    avg_buy_price = upbit.get_avg_buy_price(currency)
     krw = get_balance("KRW")
     buyed_amount = get_balance(ticker.split("-")[1])
 
@@ -303,7 +301,7 @@ def trade_buy(ticker, k):
             ai_decision = get_ai_decision(ticker)  
             if ai_decision != 'SELL' :  # AI의 판단이 NOT SELL이면
                 try:
-                    buy_order = upbit.buy_market_order(ticker, 160_000)
+                    buy_order = upbit.buy_market_order(ticker, krw*0.9995)
                     send_discord_message(f"매수 {ticker}, 현재가 {current_price:.2f} ma5 {get_ma5(ticker)} AI {ai_decision}")
                     return buy_order        #['price'], target_price
                             
@@ -396,7 +394,7 @@ while True:
         restricted_end = current_time.replace(hour=0, minute=20, second=0, microsecond=0)  # 00:30    #EC2
         krw_balance = get_balance("KRW")  # 현재 KRW 잔고 조회
 
-        if krw_balance < 160_000:       # 잔고가 매수설정금액 미만일 경우
+        if krw_balance < 10_000:       # 잔고가 매수설정금액 미만일 경우
             balances = upbit.get_balances()  
             for b in balances:
                 if b['currency'] not in ["KRW", "BTC", "ETH", "QI", "ONX", "ETHF", "ETHW", "PURSE"]:  # 보유 잔고가 있는 경우
