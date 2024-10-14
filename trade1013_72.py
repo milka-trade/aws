@@ -356,7 +356,7 @@ while True:
                 if b['currency'] not in ["KRW", "BTC", "ETH", "QI", "ONX", "ETHF", "ETHW", "PURSE"]:  # 보유 잔고가 있는 경우
                     ticker = f"KRW-{b['currency']}"  # 티커 형식 맞추기
                     trade_sell(ticker)  # 매도 실행
-            time.sleep(60)  # 1초 대기 후 재 실행
+            time.sleep(10)  # 1초 대기 후 재 실행
 
         else:  # 잔고가 매수 설정 금액 이상일 경우
             balances = upbit.get_balances()  # 모든 보유 코인 조회
