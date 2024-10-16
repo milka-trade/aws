@@ -16,3 +16,27 @@ market_code = 'KRW-BTC'  # 예: 비트코인 마켓
 trade_volume = get_trade_volume(market_code)
 
 print(f"{market_code}의 최근 거래 대금: {trade_volume} KRW")
+
+
+
+
+
+
+
+import pyupbit
+
+def get_trade_value(market, interval='day', count=5):
+    # OHLCV 데이터 가져오기
+    ohlcv = pyupbit.get_ohlcv(market, interval=interval, count=count)
+    
+    if ohlcv is not None and not ohlcv.empty:
+        # 최근 거래대금 가져오기
+        last_value = ohlcv['value'].iloc[-1]
+        return last_value
+    else:
+        return "데이터를 가져올 수 없습니다."
+
+market_code = 'KRW-BTC'  # 예: 비트코인 마켓
+trade_value = get_trade_value(market_code)
+
+print(f"{market_code}의 최근 거래 대금: {trade_value} KRW")
