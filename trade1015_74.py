@@ -134,7 +134,7 @@ def filtered_tickers(tickers, held_coins):
 
             if day_volume >= 50_000_000:  #1.(상승지표)전일 거래량 10백만 이상
                 if day_open_price * 1.1 > cur_price : #2.(상한설정)일봉기준 시가 대비 5% 이내 상승 
-                        ai_decision = get_ai_decision(ticker)  # AI의 판단을 구함
+                        ai_decision = get_ai_decision(t)  # AI의 판단을 구함
                         if ai_decision == "BUY" :
                             filtered_tickers.append(t)
                             time.sleep(0.5)  # API 호출 제한을 위한 대기
