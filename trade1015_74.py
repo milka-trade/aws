@@ -28,7 +28,7 @@ def load_ohlcv(ticker):
     global df_tickers
     if ticker not in df_tickers:   # 티커가 캐시에 없으면 데이터 가져오기     
         try:
-            df_tickers[ticker] = pyupbit.get_ohlcv(ticker, interval="day", count=10) 
+            df_tickers[ticker] = pyupbit.get_ohlcv(ticker, interval="day", count=30) 
             if df_tickers[ticker] is None or df_tickers[ticker].empty:
                 send_discord_message(f"No data returned for ticker: {ticker}")        
                 time.sleep(0.5)  # API 호출 제한을 위한 대기
@@ -132,9 +132,8 @@ def filtered_tickers(tickers, held_coins):
             day_volume = df['volume'].iloc[-1]      # 현재봉 거래량
             ma5=get_ma5(t)
 
-            if day_volume >= 10_000_000:  #1.(상승지표)전일 거래량 10백만 이상
-                if day_open_price * 1.03 > cur_price : #2.(상한설정)일봉기준 시가 대비 5% 이내 상승 
-                    if ma5*1.01 >= cur_price:  #(상승지표)일봉기준 현재가가 5이평의 1%이내 상승
+            if day_volume >= 50_000_000:  #1.(상승지표)전일 거래량 10백만 이상
+                if day_open_price * 1.1 > cur_price : #2.(상한설정)일봉기준 시가 대비 5% 이내 상승 
                         ai_decision = get_ai_decision(ticker)  # AI의 판단을 구함
                         if ai_decision == "BUY" :
                             filtered_tickers.append(t)
@@ -260,12 +259,10 @@ def trade_buy(ticker, k):
     buyed_amount = get_balance(ticker.split("-")[1])
 
     if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 5000 :  # 매수 조건 확인
-        if target_price*0.99 <= current_price and current_price < target_price*1.01 :  #현재가가 목표가의 -1~1% 이내인 경우
-            ai_decision = get_ai_decision(ticker)  
-            if ai_decision != 'SELL' :  # AI의 판단이 NOT SELL이면
+        if target_price <= current_price and current_price < target_price*1.05 :  #현재가가 목표가의 5% 이내인 경우
                 try:
                     buy_order = upbit.buy_market_order(ticker, krw*0.9995)
-                    send_discord_message(f"매수 {ticker}, 목표가 {target_price:,.2f} 현재가 {current_price:,.2f} ma5 {get_ma5(ticker):,.2f} AI {ai_decision}")
+                    send_discord_message(f"매수 {ticker}, 목표가 {target_price:,.2f} 현재가 {current_price:,.2f} ma5 {get_ma5(ticker):,.2f}")
                     return buy_order        #['price'], target_price
                             
                 except Exception as e:
@@ -281,7 +278,7 @@ def trade_sell(ticker):
     # sell_start = selltime.replace(hour=23, minute=59, second=0, microsecond=0)    #EC2
     # sell_end = selltime.replace(hour=0, minute=1, second=0, microsecond=0)      #EC2
     sell_start = selltime.replace(hour=8, minute=59, second=00, microsecond=0)       #VC
-    sell_end = selltime.replace(hour=9, minute=3, second=50, microsecond=0)         #VC
+    sell_end = selltime.replace(hour=9, minute=50, second=50, microsecond=0)         #VC
 
     current_price = get_current_price(ticker)
     currency = ticker.split("-")[1]
@@ -297,11 +294,8 @@ def trade_sell(ticker):
     else:
         if buyed_amount > 0 :  # 보유잔고가 0 이상이면
             if profit_rate > 0.65:  # 0.65% 이상 수익률일 때 AI의 판단을 구함
-                ai_decision = get_ai_decision(ticker)  # AI의 판단을 구함
-                send_discord_message(f"{ticker} AI:{ai_decision}")
-                if ai_decision != 'BUY' or profit_rate > 2:  # AI의 판단이 sell or 수익률이 2%를 넘는 경우 매도
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)  # 시장가로 매도
-                    send_discord_message(f"매도: {ticker}, 현재가 {current_price} 수익률 {profit_rate:.2f}% (수익률 2% 초과 또는 AI 판단 NOT_BUY)")
+                    send_discord_message(f"매도: {ticker}, 현재가 {current_price} 수익률 {profit_rate:.2f}%")
                     return sell_order
 
 def send_profit_report():      
@@ -371,8 +365,7 @@ while True:
             # 매수 제한 시간 체크
             if restricted_start <= stopbuy_time <= restricted_end:
                 restricted_time = datetime.now().strftime('%m/%d %H:%M:%S')  # 매수제한시간
-                send_discord_message(f"매수금지 {restricted_time} ")
-                time.sleep(600)  # 매수제한시간 10분 대기
+                time.sleep(120)  # 매수제한시간 10분 대기
                 continue  
 
             else:  # 매수 금지 시간이 아닐 때
