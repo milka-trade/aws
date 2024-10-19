@@ -255,7 +255,7 @@ def get_ai_decision(ticker):
                     },
                     {
                 "type": "text",
-                "text": "I want you to utilize specialized time series data forecasting techniques based on the chart data given to you and tell me whether I can make a profit of 1% or more based on the current price."
+                "text": "I want you to utilize specialized time series data forecasting techniques based on the chart data given to you and tell me whether I can make a profit of 2% or more based on the current price."
                     },
                     {
                 "type": "text",
@@ -267,7 +267,7 @@ def get_ai_decision(ticker):
                     },
                     {
                 "type": "text",
-                "text": "So if your analysis predicts that the current price will increase by more than 1%, please provide a response in json format, such as buy or sell.\n\nResponse Example:\n{\"decision\": \"BUY\"}\n{\"decision\": \"SELL\"}\n{\"decision\": \"HOLD\"}"
+                "text": "So if your analysis predicts that the current price will increase by more than 2%, please provide a response in json format, such as buy or sell.\n\nResponse Example:\n{\"decision\": \"BUY\"}\n{\"decision\": \"SELL\"}\n{\"decision\": \"HOLD\"}"
                     }
                 ]
                 },
