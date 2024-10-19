@@ -468,7 +468,7 @@ def selling_logic():
             for b in balances:
                 if b['currency'] not in ["KRW", "BTC", "ETH", "QI", "ONX", "ETHF", "ETHW", "PURSE"]:
                         ticker = f"KRW-{b['currency']}"
-                        print(f"selling_logic/매도함수 {ticker}")
+                        # print(f"selling_logic/매도함수 {ticker}")
                         trade_sell(ticker)
                 time.sleep(1)
 
@@ -501,8 +501,8 @@ def buying_logic():
                     if best_ticker:
                         result = trade_buy(best_ticker, best_k)
                         if result:  # 매수 성공 여부 확인
-                            print(f"매수 성공: {best_ticker}, 매수 가격: {result}")
-                        time.sleep(120)  # 매수 로직 주기 조정
+                            # print(f"매수 성공: {best_ticker}, 매수 가격: {result}")
+                            time.sleep(120)  # 매수 로직 주기 조정
 
         except Exception as e:
             print(f"buying_logic / 에러 발생: {e}")
