@@ -419,47 +419,6 @@ profit_report_thread = threading.Thread(target=send_profit_report)  # 수익률 
 profit_report_thread.daemon = True  # 메인 프로세스 종료 시 함께 종료되도록 설정
 profit_report_thread.start()
 
-# while True:
-#     try:
-#         stopbuy_time = datetime.now()
-#         """매수제한시간 체크 : EC2 변환"""
-#         restricted_start = stopbuy_time.replace(hour=7, minute=00, second=0, microsecond=0)     # 08:00  #vC2
-#         restricted_end = stopbuy_time.replace(hour=9, minute=10, second=0, microsecond=0)      # 10:00   #vC2
-#         # restricted_start = stopbuy_time.replace(hour=23, minute=0, second=0, microsecond=0)  # 23:00  #EC2
-#         # restricted_end = stopbuy_time.replace(hour=1, minute=0, second=0, microsecond=0)    # 10:00    #EC2
-        
-#         krw_balance = get_balance("KRW")  # 현재 KRW 잔고 조회
-#         if krw_balance < 5_000:       # 잔고가 매수설정금액 미만일 경우
-#             balances = upbit.get_balances()  
-#             for b in balances:
-#                 if b['currency'] not in ["KRW", "BTC", "ETH", "QI", "ONX", "ETHF", "ETHW", "PURSE"]:  # 보유 잔고가 있는 경우
-#                     ticker = f"KRW-{b['currency']}"  # 티커 형식 맞추기
-#                     trade_sell(ticker)  
-#             time.sleep(1)  
-
-#         else:  # 잔고가 매수 설정 금액 이상일 경우
-#             balances = upbit.get_balances()  
-#             for b in balances:
-#                 if b['currency'] not in ["KRW", "BTC", "ETH", "QI", "ONX", "ETHF", "ETHW", "PURSE"]:  # 해당 잔고는 제외
-#                     ticker = f"KRW-{b['currency']}"  
-#                     trade_sell(ticker)  
-
-#             if restricted_start <= stopbuy_time <= restricted_end:                      # 매수 제한 시간 체크
-#                 restricted_time = datetime.now().strftime('%m/%d %H:%M:%S')             
-#                 time.sleep(120)  # 매수제한시간 10분 대기
-#                 continue  
-
-#             else:  # 매수 금지 시간이 아닐 때
-#                 best_ticker, interest, best_k = get_best_ticker()  
-#                 if best_ticker:  
-#                     result = trade_buy(best_ticker, best_k)  
-#                     time.sleep(120)  
-
-#     except Exception as e:
-#         print(f"while True / 에러 발생: {e}")
-#         send_discord_message(f"while True / 에러 발생: {e}")
-#         time.sleep(5)  
-
 def selling_logic():
     while True:
         try:
