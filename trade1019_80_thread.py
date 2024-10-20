@@ -241,8 +241,8 @@ def get_best_ticker():
 
     for ticker in filtered_list:   # 조회할 코인 필터링
         k = get_best_k(ticker)
-        # df = load_ohlcv(ticker)
-        df = pyupbit.get_ohlcv(ticker, interval="day") 
+        df = load_ohlcv(ticker)
+        # df = pyupbit.get_ohlcv(ticker, interval="day") 
         if df is None or df.empty:
             continue
     
@@ -261,8 +261,8 @@ def get_best_ticker():
     return bestC, interest, best_k  # 최고의 코인, 수익률, K 반환
     
 def get_target_price(ticker, k):  #변동성 돌파 전략 구현
-    # df = load_ohlcv(ticker)
-    df = pyupbit.get_ohlcv(ticker, interval="day", count=2) 
+    df = load_ohlcv(ticker)
+    # df = pyupbit.get_ohlcv(ticker, interval="day", count=2) 
     if df is not None and not df.empty:
         return df['close'].iloc[-1] + (df['high'].iloc[-1] - df['low'].iloc[-1]) * k
     return 0
@@ -356,6 +356,7 @@ def trade_buy(ticker, k):
         while attempt < max_retries:
             current_price = get_current_price(ticker)
             print(f"가격 확인 중: {ticker}, 목표가 {target_price:,.2f} / 현재가 {current_price:,.2f} (시도 {attempt + 1}/{max_retries})")
+            send_discord_message(f"가격 확인 중: {ticker}, 목표가 {target_price:,.2f} / 현재가 {current_price:,.2f} (시도 {attempt + 1}/{max_retries})")
             print(f"[DEBUG] 시도 {attempt + 1} / {max_retries} - 목표가 {target_price:,.2f} / 현재가: {current_price:,.2f}")
 
             if target_price <= current_price < target_price * 1.03:
