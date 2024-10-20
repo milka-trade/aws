@@ -153,34 +153,66 @@ def filtered_tickers(tickers, held_coins):
             value_2 = df['value'].iloc[-2]            #60봉 1봉전 거래량 
             value_3 = df['value'].iloc[-3]            #60봉 2봉전 거래량
 
-            day_open_price = df_day['open'].iloc[-1]  #9시 기준 당일 시가 
+            day_open_price_1 = df_day['open'].iloc[-1]  #9시 기준 당일 시가 
+            day_close_price_1 = df_day['close'].iloc[-1]  #9시 기준 당일 종가 
+            day_high_price_1 = df_day['high'].iloc[-1]  #9시 기준 당일 고가 
+            day_open_price_2 = df_day['open'].iloc[-2]  #9시 기준 전일 시가 
+            day_close_price_2 = df_day['close'].iloc[-2]  #9시 기준 전일 종가 
+            day_high_price_2 = df_day['high'].iloc[-2]  #9시 기준 전일 고가 
+            day_open_price_3 = df_day['open'].iloc[-3]  #9시 기준 2전일 시가 
+            day_close_price_3 = df_day['close'].iloc[-3]  #9시 기준 2전일 종가 
+            day_high_price_3 = df_day['high'].iloc[-3]  #9시 기준 2전일 고가 
+
             df_open_1 = df['open'].iloc[-1]           #현재 정시 기준 시가 
             df_close_1 = df['close'].iloc[-1]         #현재 정시 기준 종가 
+            df_high_1 = df['high'].iloc[-1]           #현재 정시 기준 고가 
             df_open_2 = df['open'].iloc[-2]           #전봉 정시 기준 시가 
             df_close_2 = df['close'].iloc[-2]         #전봉 정시 기준 종가 
+            df_high_2 = df['high'].iloc[-2]           #전봉 정시 기준 고가 
             df_open_3 = df['open'].iloc[-3]           #2전봉 정시 기준 시가 
             df_close_3 = df['close'].iloc[-3]         #2전봉 정시 기준 종가 
+            df_high_3 = df['high'].iloc[-3]           #2전봉 정시 기준 고가 
             
             ma20=get_ma20(t)
 
-            # print(f"{t} / value:{value_1:,.0f}")
-            if day_value_1 >= 25_000_000_000: 
-                print(f"1.일봉거래량 25,000백만 이상 : {t} / value:{day_value_1:,.0f}")   
-                # send_discord_message(f"{t} / value:{value_1:,.0f}")  
-                if day_open_price < cur_price and day_open_price*1.06 > cur_price :                            
-                    print(f"2.일봉 양봉~6%이내 : {t} / 현재가:{cur_price}/ 일봉시가:{df_open_1}")
+            # print(f"{t} /day:{day_value_1:,.0f} /60min:{value_1:,.0f}")
+            if day_value_1 >= 25_000_000_000 or value_1>=1_500_000_000: 
+                print(f"1.거래량 {t} 일 25,000백만:{day_value_1:,.0f} 또는 분봉 1,500백만:{value_1:,.0f}")
+                # send_discord_message(f"1.거래량 {t} 일 25,000백만:{day_value_1:,.0f} 또는 분봉 1,500백만:{value_1:,.0f}")
+            # if value_1>=500_000_000 : 
+            #     print(f"1.분봉 거래량 500백만 : {t} / 전봉 : {value_2:,.0f} / 현재봉 : {value_1:,.0f}")
+                # send_discord_message(f"1.분봉 거래량 1,500백만:{value_1:,.0f}")
+                
+                if day_close_price_1 <=cur_price and day_open_price_1*1.1 >= cur_price :                            
+                    print(f"2.일봉 10%이내 : {t} / 일봉시가:{day_open_price_1} / 일봉종가:{day_close_price_1} / 현재가:{cur_price}")
+                    # send_discord_message(f"2.일봉 5%이내 : {t} / 일봉시가:{day_open_price_1} / 일봉종가:{day_close_price_1} / 현재가:{cur_price}")
+                    # send_discord_message(f"2.일봉 양봉~6%이내 : {t} / 일봉시가:{df_open_1} / 현재가:{cur_price}") 
                     # if df_close_3 > df_close_2 :                           #3.2봉전 종가보다 1봉전 종가보다 작음 (음봉)
-                    if ma20 < cur_price and df_open_1*1.02 > cur_price :    #4.현재가가 60분봉 20일 이동평균 이상이고 시가보다 큼 (상승지표)
-                            print(f"3.분봉 20이평 이상 / 분봉시가 2프로 이내 : {t} / 현재가:{cur_price}/ 분봉시가:{df_open_1} / ma20:{ma20:,.2f}")
+                    # if day_open_price_1*1.3 <= day_high_price_1 :                            
+                    #     print(f"3-1.당일봉 고가 20프로 이내 : {t} / 일봉시가:{day_open_price_1} / 일봉 고가:{day_high_price_1}")
+                    # if day_open_price_2*1.3 <= day_high_price_2 :                            
+                    #         print(f"3-2.전일봉 고가 20프로 이내 : {t} / 전일봉시가:{day_open_price_2} / 전일봉 고가:{day_high_price_2}")
+                    #         if day_open_price_3*1.3 <= day_high_price_3 :                            
+                    #             print(f"3-3.2전일봉 고가 20프로 이내 : {t} / 2전일봉시가:{day_open_price_3} / 2전일봉 고가:{day_high_price_3}")
+                                
+                    if ma20 < cur_price and df_open_1*1.05 > cur_price :    #4.현재가가 60분봉 20일 이동평균 이상이고 시가보다 큼 (상승지표)
+                        print(f"3.분봉 20이평 이상|시가 5프로 이내 : {t} /  분봉시가:{df_open_1:,.0f} / 현재가:{cur_price:,.0f}/ / ma20:{ma20:,.2f}")
+                        # send_discord_message(f"3.분봉 20이평 이상|시가 3프로 이내 : {t} /  분봉시가:{df_open_1:,.0f} / 현재가:{cur_price:,.0f}/ / ma20:{ma20:,.2f}")
+                    
+                            # if df_high_1 > cur_price * 1.05 :    #4.현재가가 60분봉 20일 이동평균 이상이고 시가보다 큼 (상승지표)
+                            #     print(f"4.분봉 현재가 고가의 5% 이내: {t} / 분봉고가:{df_high_1} / 현재가:{cur_price}")
+
+
                             # send_discord_message(f"{t} / price:{cur_price}/ 시가:{df_open_1} / ma20:{ma20:,.2f}")  
                             # if value_2 < value_1 :                     #6.현재봉 거래량이 1봉전 거래량보다 큼 (상승지표) 
                                 # print(f"4.분봉 거래량 상승 : {t} / price:{cur_price}/ 시가:{df_open_1} / ma20:{ma20:,.2f}/value2:{value_2:,.0f} / value1:{value_1:,.0f}") 
                                 # send_discord_message(f"{t} / value2:{value_2:,.0f} / value1:{value_1:,.0f}")  
-                            ai_decision = get_ai_decision(t)  #7.AI의 판단을 구함
-                            if ai_decision == "BUY" :
-                                print(f"5.AI판단 {t} / AI:{ai_decision}")
-                                # send_discord_message(f"{t} / AI:{ai_decision}")  
-                                filtered_tickers.append(t)
+                        ai_decision = get_ai_decision(t)  #7.AI의 판단을 구함
+                        print(f"4.AI판단 : {t} / AI:{ai_decision}")
+                        send_discord_message(f"{t} / AI:{ai_decision}")  
+                        if ai_decision == "BUY" :
+                            filtered_tickers.append(t)
+        
         except Exception as e:
             send_discord_message(f"filtered_tickers/Error processing ticker {t}: {e}")
             time.sleep(5)  # API 호출 제한을 위한 대기
@@ -209,7 +241,8 @@ def get_best_ticker():
 
     for ticker in filtered_list:   # 조회할 코인 필터링
         k = get_best_k(ticker)
-        df = load_ohlcv(ticker)
+        # df = load_ohlcv(ticker)
+        df = pyupbit.get_ohlcv(ticker, interval="day") 
         if df is None or df.empty:
             continue
     
@@ -228,7 +261,8 @@ def get_best_ticker():
     return bestC, interest, best_k  # 최고의 코인, 수익률, K 반환
     
 def get_target_price(ticker, k):  #변동성 돌파 전략 구현
-    df = load_ohlcv(ticker)
+    # df = load_ohlcv(ticker)
+    df = pyupbit.get_ohlcv(ticker, interval="day", count=2) 
     if df is not None and not df.empty:
         return df['close'].iloc[-1] + (df['high'].iloc[-1] - df['low'].iloc[-1]) * k
     return 0
@@ -255,19 +289,19 @@ def get_ai_decision(ticker):
                     },
                     {
                 "type": "text",
-                "text": "I want you to utilize specialized time series data forecasting techniques based on the chart data given to you and tell me whether I can make a profit of 2% or more based on the current price."
-                    },
-                    {
-                "type": "text",
                 "text": "For example, you can make professional price forecasts based on the given chart data using the Moving Average (MA), Volatility, and Relative Strength Index (RSI) indicators and tell you whether to buy or sell at the moment."
                     },
-                     {
+                    {
                 "type": "text",
                 "text": "In particular, you use specialized price forecasting techniques to predict prices. You use linear regression models, random forests, or other specialized analytical techniques to provide appropriate buy and sell opinions."
                     },
                     {
                 "type": "text",
-                "text": "So if your analysis predicts that the current price will increase by more than 2%, please provide a response in json format, such as buy or sell.\n\nResponse Example:\n{\"decision\": \"BUY\"}\n{\"decision\": \"SELL\"}\n{\"decision\": \"HOLD\"}"
+                "text": "Through these analyses, you will utilize specialized time series data forecasting techniques based on the chart data given to you to tell me whether the coin is likely to make a profit of 3% or more within 3 hours based on the current price."
+                    },
+                    {
+                "type": "text",
+                "text": "So, if your analysis indicates that the price is expected to be 3% or more above the current price in 3 hours, please provide a Buy response, if the price is expected to be 0.1-2.9% above the current price in 3 hours, please provide a Hold response, and if the price is expected to be below the current price in 3 hours, please provide a Sell response in JSON format.So, if your analysis indicates that the price after 3 hours is expected to increase by more than 3% above the current price, please provide us with a Buy response, if the price after 3 hours is expected to increase by 1-2.9% above the current price, and a Hold response, if the price after 3 hours is expected to decrease by more than 5% below the current price, in JSON format.\n\nResponse Example:\n{\"decision\": \"BUY\"}\n{\"decision\": \"SELL\"}\n{\"decision\": \"HOLD\"}"
                     }
                 ]
                 },
@@ -322,7 +356,7 @@ def trade_buy(ticker, k):
         while attempt < max_retries:
             current_price = get_current_price(ticker)
             print(f"가격 확인 중: {ticker}, 목표가 {target_price:,.2f} / 현재가 {current_price:,.2f} (시도 {attempt + 1}/{max_retries})")
-            print(f"[DEBUG] 시도 {attempt + 1} / {max_retries} - 목표가 {target_price:,.2f} / 현재가: {current_price:.2f}")
+            print(f"[DEBUG] 시도 {attempt + 1} / {max_retries} - 목표가 {target_price:,.2f} / 현재가: {current_price:,.2f}")
 
             if target_price <= current_price < target_price * 1.03:
                 print(f"매수 시도: {ticker}, 현재가 {current_price:,.2f}")
@@ -342,7 +376,7 @@ def trade_buy(ticker, k):
                 print(f"현재가가 목표 범위에 도달하지 않음. 다음 시도로 넘어갑니다.")
             
             attempt += 1  # 시도 횟수 증가
-            time.sleep(5)
+            time.sleep(60)
 
         # 10회 시도 후 가격 범위에 도달하지 못한 경우
         print(f"10회 시도완료: {ticker}, 목표가 범위에 도달하지 못함")
@@ -366,17 +400,19 @@ def trade_sell(ticker):
     # ai_decision = get_ai_decision(ticker)
 
     if sell_start <= selltime <= sell_end:      # 매도 제한시간이면
-        sell_order = upbit.sell_market_order(ticker, buyed_amount)  # 시장가로 전량 매도
-        send_discord_message(f"전량 매도: {ticker}, 현재가 {current_price} 수익률 {profit_rate:.2f}%")
-        return sell_order
+        ai_decision = get_ai_decision(ticker)
+        print(f"{ticker} / AI {ai_decision}")
+        if ai_decision != "BUY" or profit_rate > 1.2 :
+            sell_order = upbit.sell_market_order(ticker, buyed_amount)  # 시장가로 전량 매도
+            send_discord_message(f"전량 매도: {ticker}, 현재가 {current_price} 수익률 {profit_rate:.2f}%")
+            return sell_order
     
     else:
         if buyed_amount > 0 :  # 보유잔고가 0 이상이면
             if profit_rate > 0.65:  # 0.65% 이상 수익률일 때 AI의 판단을 구함
                 ai_decision = get_ai_decision(ticker)
-
-                if ai_decision != "BUY" or profit_rate > 2.0 :
-                
+                print(f"{ticker} / AI {ai_decision}")
+                if ai_decision != "BUY" or profit_rate > 1.2 :
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)  # 시장가로 매도
                     send_discord_message(f"매도: {ticker}/ 현재가 {current_price}/ 수익률 {profit_rate:.2f}%/ AI {ai_decision}")
                     return sell_order
@@ -450,7 +486,7 @@ def buying_logic():
             restricted_end = stopbuy_time.replace(hour=restricted_end_hour, minute=restricted_end_minute, second=0, microsecond=0)
 
             if restricted_start <= stopbuy_time <= restricted_end:  # 매수 제한 시간 체크
-                time.sleep(120)  # 매수제한시간 10분 대기
+                time.sleep(600)  # 매수제한시간 10분 대기
                 continue
 
             else:  # 매수 금지 시간이 아닐 때
@@ -458,10 +494,12 @@ def buying_logic():
                 if krw_balance > 50_000: 
                     best_ticker, interest, best_k = get_best_ticker()
                     if best_ticker:
+                        print(f"선정코인 : {best_ticker} / k값 : {best_k} / 수익률 : {interest}")
+                        send_discord_message(f"선정코인 : {best_ticker} / k값 : {best_k} / 수익률 : {interest}")
                         result = trade_buy(best_ticker, best_k)
                         if result:  # 매수 성공 여부 확인
                             # print(f"매수 성공: {best_ticker}, 매수 가격: {result}")
-                            time.sleep(120)  # 매수 로직 주기 조정
+                            time.sleep(600)  # 매수 로직 주기 조정
 
         except Exception as e:
             print(f"buying_logic / 에러 발생: {e}")
