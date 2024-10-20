@@ -427,6 +427,7 @@ def trade_sell(ticker):
 
                     attempts += 1  # 조회 횟수 증가
                     time.sleep(0.1)
+            # print(f"{datetime.now().strftime('%m/%d %H:%M:%S')} 매도 확인용")
             return
         return
                 
@@ -508,8 +509,8 @@ def buying_logic():
                 if krw_balance > 50_000: 
                     best_ticker, interest, best_k = get_best_ticker()
                     if best_ticker:
-                        print(f"선정코인 : {best_ticker} / k값 : {best_k} / 수익률 : {interest}")
-                        send_discord_message(f"선정코인 : {best_ticker} / k값 : {best_k} / 수익률 : {interest}")
+                        print(f"선정코인 : {best_ticker} / k값 : {best_k:,.2f} / 수익률 : {interest:,.2f}")
+                        send_discord_message(f"선정코인 : {best_ticker} / k값 : {best_k:,.2f} / 수익률 : {interest:,.2f}")
                         result = trade_buy(best_ticker, best_k)
                         if result:  # 매수 성공 여부 확인
                             # print(f"매수 성공: {best_ticker}, 매수 가격: {result}")
@@ -527,4 +528,3 @@ selling_thread.start()
 # 매수 쓰레드 생성
 buying_thread = threading.Thread(target=buying_logic)
 buying_thread.start()
-
