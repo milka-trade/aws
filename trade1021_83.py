@@ -161,15 +161,15 @@ def filtered_tickers(tickers, held_coins):
             df['short_ema'] = df['close'].ewm(span=short_period, adjust=False).mean()
             df['long_ema'] = df['close'].ewm(span=long_period, adjust=False).mean()
 
-            # 교차 여부 확인
+            # # 교차 여부 확인
             # if (df['short_ema'].iloc[-1] > df['long_ema'].iloc[-1] and 
             #     df['short_ema'].iloc[-2] <= df['long_ema'].iloc[-2]):
             #     print(f"EMA 교차 발생: {t}")
             #     send_discord_message(f"EMA 교차 발생: {t}")
 
                         # print(f"{t} /day:{day_value_1:,.0f} /60min:{value_1:,.0f}")
-            # if day_value_1 >= 25_000_000_000 : 
-            #         print(f"1.거래량 {t} 일 25,000백만:{day_value_1:,.0f}")
+            if day_value_1 >= 25_000_000_000 : 
+                    print(f"1.거래량 {t} 일 25,000백만:{day_value_1:,.0f}")
                             # send_discord_message(f"1.거래량 {t} 일 25,000백만:{day_value_1:,.0f} 또는 분봉 1,500백만:{value_1:,.0f}")
                         # if value_1>=500_000_000 : 
                         #     print(f"1.분봉 거래량 500백만 : {t} / 전봉 : {value_2:,.0f} / 현재봉 : {value_1:,.0f}")
@@ -191,16 +191,16 @@ def filtered_tickers(tickers, held_coins):
                         #     print(f"3.분봉 20이평 이상|시가 3프로 이내 : {t} /  분봉시가:{df_open_1:,.0f} / 현재가:{cur_price:,.0f}/ / ma20:{ma20:,.2f}")
 
                             # RSI 계산
-            rsi_period = 14
-            delta = df['close'].diff()
-            gain = (delta.where(delta > 0, 0)).rolling(window=rsi_period).mean()
-            loss = (-delta.where(delta < 0, 0)).rolling(window=rsi_period).mean()
-            rs = gain / loss
-            rsi = 100 - (100 / (1 + rs))
+                    rsi_period = 14
+                    delta = df['close'].diff()
+                    gain = (delta.where(delta > 0, 0)).rolling(window=rsi_period).mean()
+                    loss = (-delta.where(delta < 0, 0)).rolling(window=rsi_period).mean()
+                    rs = gain / loss
+                    rsi = 100 - (100 / (1 + rs))
 
-                            # RSI가 30 이하에서 반등하는지 확인
-            if rsi.iloc[-2] < 30 and rsi.iloc[-1] >= 30:
-                                print(f"4.RSI 반등 발생: {t} / RSI:{rsi.iloc[-1]:.2f}")
+                                    # RSI가 30 이하에서 반등하는지 확인
+                    if rsi.iloc[-2] < 30 and rsi.iloc[-1] >= 30:
+                                        print(f"4.RSI 반등 발생: {t} / RSI:{rsi.iloc[-1]:.2f}")
 
 
                             # send_discord_message(f"3.분봉 20이평 이상|시가 3프로 이내 : {t} /  분봉시가:{df_open_1:,.0f} / 현재가:{cur_price:,.0f}/ / ma20:{ma20:,.2f}")
@@ -213,11 +213,11 @@ def filtered_tickers(tickers, held_coins):
                                 # if value_2 < value_1 :                     #6.현재봉 거래량이 1봉전 거래량보다 큼 (상승지표) 
                                     # print(f"4.분봉 거래량 상승 : {t} / price:{cur_price}/ 시가:{df_open_1} / ma20:{ma20:,.2f}/value2:{value_2:,.0f} / value1:{value_1:,.0f}") 
                                     # send_discord_message(f"{t} / value2:{value_2:,.0f} / value1:{value_1:,.0f}")  
-                                ai_decision = get_ai_decision(t)  #7.AI의 판단을 구함
-                                print(f"5.AI판단 : {t} / AI:{ai_decision}")
-                                send_discord_message(f"{t} / AI:{ai_decision}")  
-                                if ai_decision == "BUY" :
-                                    filtered_tickers.append(t)
+                    ai_decision = get_ai_decision(t)  #7.AI의 판단을 구함
+                    print(f"5.AI판단 : {t} / AI:{ai_decision}")
+                    send_discord_message(f"{t} / AI:{ai_decision}")  
+                    if ai_decision == "BUY" :
+                                        filtered_tickers.append(t)
             
         except Exception as e:
             send_discord_message(f"filtered_tickers/Error processing ticker {t}: {e}")
