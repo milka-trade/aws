@@ -142,7 +142,7 @@ def filtered_tickers(tickers, held_coins):
                 day_value_3 = df_day['value'].iloc[-3]      #일봉 9시 기준 2일전 거래량
             else:
                 print(f"filtered_tickers/Insufficient data for ticker: {t}")
-                send_discord_message(f"filtered_tickers/Insufficient data for ticker: {t}")
+                # send_discord_message(f"filtered_tickers/Insufficient data for ticker: {t}")
                 continue
 
             day_open_price_1 = df_day['open'].iloc[-1]  #9시 기준 당일 시가 
