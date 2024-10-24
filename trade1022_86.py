@@ -145,14 +145,14 @@ def filtered_tickers(tickers, held_coins):
                 # send_discord_message(f"filtered_tickers/Insufficient data for ticker: {t}")
                 continue
 
-            if len(df) >= 3:
-                min60_value_1 = df['value'].iloc[-1]      #min60_봉 전 봉 거래량
-                min60__value_2 = df['value'].iloc[-2]      #min60_봉 전 봉 거래량
-                min60__value_3 = df['value'].iloc[-3]      #min60_봉 전 봉 거래량
-            else:
-                print(f"filtered_tickers/Insufficient data for ticker: {t}")
-                # send_discord_message(f"filtered_tickers/Insufficient data for ticker: {t}")
-                continue
+            # if len(df) >= 3:
+            #     min60_value_1 = df['value'].iloc[-1]      #min60_봉 전 봉 거래량
+            #     min60__value_2 = df['value'].iloc[-2]      #min60_봉 전 봉 거래량
+            #     min60__value_3 = df['value'].iloc[-3]      #min60_봉 전 봉 거래량
+            # else:
+            #     print(f"filtered_tickers/Insufficient data for ticker: {t}")
+            #     # send_discord_message(f"filtered_tickers/Insufficient data for ticker: {t}")
+            #     continue
 
             day_open_price_1 = df_day['open'].iloc[-1]  #9시 기준 당일 시가 
             day_close_price_1 = df_day['close'].iloc[-1]  #9시 기준 당일 종가 
@@ -178,7 +178,7 @@ def filtered_tickers(tickers, held_coins):
 
                         # print(f"{t} /day:{day_value_1:,.0f} /60min:{value_1:,.0f}")
             if day_value_1 >= 25_000_000_000 : 
-                print(f"1.거래량 {t} 일 2,000백만:{day_value_1:,.0f}")
+                print(f"1.일봉 거래량 {t} / {day_value_1:,.0f}")
                             # send_discord_message(f"1.거래량 {t} 일 25,000백만:{day_value_1:,.0f} 또는 분봉 1,500백만:{value_1:,.0f}")
                         # if value_1>=500_000_000 : 
                         #     print(f"1.분봉 거래량 500백만 : {t} / 전봉 : {value_2:,.0f} / 현재봉 : {value_1:,.0f}")
@@ -441,7 +441,7 @@ def trade_sell(ticker):
                 # send_discord_message(f"{ticker} / 시도 {attempts + 1} / {max_attempts} - / 수익률 {profit_rate:.2f}%")
                 
                 # 수익률이 0.6% 미만이거나 1.5% 초과인 경우 매도
-                if profit_rate <= 0.6 or profit_rate >= 1.5:
+                if profit_rate <= 0.6 or profit_rate >= 1.2:
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)
                     send_discord_message(f"매도: {ticker}/ 현재가 {current_price}/ 수익률 {profit_rate:.2f}%")
                     return sell_order
