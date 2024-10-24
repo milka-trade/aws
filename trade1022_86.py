@@ -145,6 +145,15 @@ def filtered_tickers(tickers, held_coins):
                 # send_discord_message(f"filtered_tickers/Insufficient data for ticker: {t}")
                 continue
 
+            if len(df) >= 3:
+                min60_value_1 = df['value'].iloc[-1]      #min60_봉 전 봉 거래량
+                min60__value_2 = df['value'].iloc[-2]      #min60_봉 전 봉 거래량
+                min60__value_3 = df['value'].iloc[-3]      #min60_봉 전 봉 거래량
+            else:
+                print(f"filtered_tickers/Insufficient data for ticker: {t}")
+                # send_discord_message(f"filtered_tickers/Insufficient data for ticker: {t}")
+                continue
+
             day_open_price_1 = df_day['open'].iloc[-1]  #9시 기준 당일 시가 
             day_close_price_1 = df_day['close'].iloc[-1]  #9시 기준 당일 종가 
             day_high_price_1 = df_day['high'].iloc[-1]  #9시 기준 당일 고가 
@@ -169,11 +178,14 @@ def filtered_tickers(tickers, held_coins):
 
                         # print(f"{t} /day:{day_value_1:,.0f} /60min:{value_1:,.0f}")
             if day_value_1 >= 25_000_000_000 : 
-                # print(f"1.거래량 {t} 일 2,000백만:{day_value_1:,.0f}")
+                print(f"1.거래량 {t} 일 2,000백만:{day_value_1:,.0f}")
                             # send_discord_message(f"1.거래량 {t} 일 25,000백만:{day_value_1:,.0f} 또는 분봉 1,500백만:{value_1:,.0f}")
                         # if value_1>=500_000_000 : 
                         #     print(f"1.분봉 거래량 500백만 : {t} / 전봉 : {value_2:,.0f} / 현재봉 : {value_1:,.0f}")
                             # send_discord_message(f"1.분봉 거래량 1,500백만:{value_1:,.0f}")
+                            
+            # if min60_value_1 >= 1_500_000_000 : 
+            #     print(f"1.거래량 {t} 60봉 1,500백만:{min60_value_1:,.0f}")
                             
                 if day_open_price_1*1.05 >= cur_price :                            
                     # print(f"2.일봉 5%이내 : {t} / 일봉시가:{day_open_price_1} / 일봉종가:{day_close_price_1} / 현재가:{cur_price}")
@@ -210,7 +222,7 @@ def filtered_tickers(tickers, held_coins):
 
 
                                 # send_discord_message(f"{t} / price:{cur_price}/ 시가:{df_open_1} / ma20:{ma20:,.2f}")  
-                                # if value_2 < value_1 :                     #6.현재봉 거래량이 1봉전 거래량보다 큼 (상승지표) 
+                                # if value_2 < value_1 :                                                                                                                                                                            #6.현재봉 거래량이 1봉전 거래량보다 큼 (상승지표) 
                                     # print(f"4.분봉 거래량 상승 : {t} / price:{cur_price}/ 시가:{df_open_1} / ma20:{ma20:,.2f}/value2:{value_2:,.0f} / value1:{value_1:,.0f}") 
                                     # send_discord_message(f"{t} / value2:{value_2:,.0f} / value1:{value_1:,.0f}")  
 
@@ -543,15 +555,15 @@ def buying_logic():
                         # send_discord_message(f"선정코인 : {best_ticker} / k값 : {best_k:,.2f} / 수익률 : {interest:,.2f}")
                         result = trade_buy(best_ticker, best_k)
                         if result:  # 매수 성공 여부 확인
-                            print("매수 성공 / 20분 후 다시 확인")    
+                            time.sleep(1200)
                         else:
-                            print("매수 실패 / 20분 후 다시 확인")
+                            time.sleep(1200)
                     else:
-                        print("선정된 코인이 없습니다. / 20분 후 다시 확인")
+                        time.sleep(1200)
                 else:
-                    print("잔고 부족 / 20분 후 다시 확인")
+                    # print("잔고 부족 / 20분 후 다시 확인")
 
-                time.sleep(1200)
+                    time.sleep(1200)
 
         except Exception as e:
             print(f"buying_logic / 에러 발생: {e}")
