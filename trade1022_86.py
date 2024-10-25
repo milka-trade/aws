@@ -418,13 +418,13 @@ def trade_sell(ticker):
     avg_buy_price = upbit.get_avg_buy_price(currency)
     
     
-    max_attempts = 50  # 최대 조회 횟수
+    max_attempts = 1_000  # 최대 조회 횟수
     attempts = 0  # 현재 조회 횟수
 
     if sell_start <= selltime <= sell_end:      # 매도 제한시간이면
         current_price = get_current_price(ticker)  # 현재 가격 재조회
         profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0  # 수익률 계산
-        if profit_rate > -1 :
+        if profit_rate > -2 :
             sell_order = upbit.sell_market_order(ticker, buyed_amount)  # 시장가로 전량 매도
             send_discord_message(f"전량 매도: {ticker}, 현재가 {current_price} 수익률 {profit_rate:.2f}%")
             return sell_order
@@ -432,7 +432,7 @@ def trade_sell(ticker):
     else:
         current_price = get_current_price(ticker)  # 현재 가격 재조회
         profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0  # 수익률 계산
-        if profit_rate >= 0.80:  # 수익률이 0.8% 이상일 때
+        if profit_rate >= 0.7:  # 수익률이 0.8% 이상일 때
             while attempts < max_attempts:
                 current_price = get_current_price(ticker)  # 현재 가격 재조회
                 profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0
@@ -441,13 +441,13 @@ def trade_sell(ticker):
                 # send_discord_message(f"{ticker} / 시도 {attempts + 1} / {max_attempts} - / 수익률 {profit_rate:.2f}%")
                 
                 # 수익률이 0.6% 미만이거나 1.5% 초과인 경우 매도
-                if profit_rate <= 0.6 or profit_rate >= 1.2:
+                if profit_rate <= 0.6 or profit_rate >= 1.1:
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)
                     send_discord_message(f"매도: {ticker}/ 현재가 {current_price}/ 수익률 {profit_rate:.2f}%")
                     return sell_order
                 else:
-                    print("수익률이 0.6% 이상 1.5% 이하입니다. 계속 감시합니다.")
-                    time.sleep(0.1)  # 짧은 대기
+                    print("수익률 0.6% 이상 1.1% 이하")
+                    time.sleep(0.5)  # 짧은 대기
                 
                 attempts += 1  # 조회 횟수 증가
                 
