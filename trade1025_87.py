@@ -302,9 +302,17 @@ def get_ai_decision(ticker):
                 "type": "text",
                 "text": "In particular, you should use specialized price forecasting techniques to predict prices. You should use linear regression models, random forests, or whatever specialized analytical techniques you have available to you to tell you the best time to buy and sell."
                     },
+                     {
+                "type": "text",
+                "text": "And you can find the most profitable way to trade the RSI indicator and apply it to your trading. So, for example, if the RSI is below 30, you buy when it's oversold, you buy when it's oversold, and so on, you can find the best technique and apply it."
+                    },
+                     {
+                "type": "text",
+                "text": "In this way, you'll be able to identify the best time to buy by applying techniques that will allow you to make the most profit possible on a single trade."
+                    },
                     {
                 "type": "text",
-                "text": "Based on the chart data given to you, you will use specialized techniques to analyze the current price and tell me whether the coin will increase by more than 1.05 times the current price within 3 hours."
+                "text": "So, based on what we've discussed so far, you use your expertise to analyze the current price based on the chart data provided and tell us whether the coin will rise by more than 1.05 times the current price within 3 hours."
                     },
                     {
                 "type": "text",
@@ -466,6 +474,9 @@ def send_profit_report():
                 loss = (-delta.where(delta < 0, 0)).rolling(window=rsi_period).mean()
                 rs = gain / loss
                 rsi = 100 - (100 / (1 + rs))
+                
+                # 가장 최근의 RSI 값
+                latest_rsi = rsi.iloc[-1] if not rsi.empty else None
 
                                         # RSI가 30 이하에서 반등하는지 확인
                 # if rsi.iloc[-2] < 30 and rsi.iloc[-1] >= 30:
