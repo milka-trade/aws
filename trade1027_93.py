@@ -419,14 +419,14 @@ def trade_sell(ticker):
     else:
         current_price = get_current_price(ticker)  # 현재 가격 재조회
         profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0  # 수익률 계산
-        if profit_rate >= 0.4:  # 수익률이 0.4% 이상일 때
+        if profit_rate >= 0.5:  # 수익률이 0.4% 이상일 때
             while attempts < max_attempts:
                 current_price = get_current_price(ticker)  # 현재 가격 재조회
                 profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0
                 
                 print(f"{ticker} / 시도 {attempts + 1} / {max_attempts} - / 현재가 {current_price} 수익률 {profit_rate:.2f}%")
                 
-                if profit_rate >= 0.75:
+                if profit_rate >= 1.1:
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)
                     send_discord_message(f"매도: {ticker}/ 현재가 {current_price}/ 수익률 {profit_rate:.2f}%")
                     return sell_order
