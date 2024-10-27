@@ -306,11 +306,11 @@ def get_ai_decision(ticker):
                     },
                     {
                 "type": "text",
-                "text": "So, based on what we've discussed so far, you use your expertise to analyze the current price based on the chart data provided and tell us whether the coin will rise by more than 1.03 times the current price within 3 hours."
+                "text": "So, based on what we've discussed so far, you use your expertise to analyze the current price based on the chart data provided and tell us whether the coin will rise by more than 1.05 times the current price within 3 hours."
                     },
                     {
                 "type": "text",
-                "text": "So, if your analysis indicates that the price will be more than 1.03 times higher than the current price in 3 hours, please provide a 'BUY' response; if the analysis indicates that the price will be about 1.01 times higher than the current price in 3 hours, please provide a 'HOLD' response; and if the analysis indicates that the price will be lower than the current price in 3 hours, please provide a 'SELL' response in JSON format.\n\nResponse Example:\n{\"decision\": \"BUY\"}\n{\"decision\": \"SELL\"}\n{\"decision\": \"HOLD\"}"
+                "text": "So, if your analysis indicates that the price will be more than 1.05 times higher than the current price in 3 hours, please provide a 'BUY' response; if the analysis indicates that the price will be about 1.01 times higher than the current price in 3 hours, please provide a 'HOLD' response; and if the analysis indicates that the price will be lower than the current price in 3 hours, please provide a 'SELL' response in JSON format.\n\nResponse Example:\n{\"decision\": \"BUY\"}\n{\"decision\": \"SELL\"}\n{\"decision\": \"HOLD\"}"
                     }
                 ]
                 },
@@ -425,7 +425,7 @@ def trade_sell(ticker):
                 
                 print(f"{ticker} / 시도 {attempts + 1} / {max_attempts} - / 현재가 {current_price} 수익률 {profit_rate:.2f}%")
                 
-                if profit_rate >= 1.1:
+                if profit_rate >= 0.85:
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)
                     send_discord_message(f"매도: {ticker}/ 현재가 {current_price}/ 수익률 {profit_rate:.2f}%")
                     return sell_order
@@ -516,11 +516,11 @@ def buying_logic():
                         send_discord_message(f"선정코인 : {best_ticker} / k값 : {best_k:,.2f} / 수익률 : {interest:,.2f}")
                         result = trade_buy(best_ticker, best_k)
                         if result:  # 매수 성공 여부 확인
-                            time.sleep(300)
+                            time.sleep(600)
                         else:
-                            time.sleep(300)
+                            time.sleep(600)
                     else:
-                        time.sleep(300)
+                        time.sleep(600)
                 else:
                     # print("잔고 부족 / 20분 후 다시 확인")
 
