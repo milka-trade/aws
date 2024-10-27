@@ -76,32 +76,13 @@ def get_sma(ticker, window):
     df = pyupbit.get_ohlcv(ticker, interval="day", count=window)
     return df['close'].rolling(window=window).mean().iloc[-1] if df is not None and not df.empty else 0
 
-# def calculate_moving_average(df, window):
-#     return df['close'].rolling(window=window).mean().iloc[-1] if df is not None and not df.empty else 0
-
-# def get_ma5(ticker):
-#     df = load_ohlcv(ticker)   # 데이터프레임을 한 번 로드하고 재사용
-#     return calculate_moving_average(df, 5)
-
-# def get_ma10(ticker):
-#     df = load_ohlcv(ticker)   # 데이터프레임을 한 번 로드하고 재사용
-#     return calculate_moving_average(df, 10)
-
-# def get_ma15(ticker):
-#     df = load_ohlcv(ticker)   # 데이터프레임을 한 번 로드하고 재사용
-#     return calculate_moving_average(df, 15)
-
-# def get_ma20(ticker):
-#     df = load_ohlcv(ticker)
-#     return calculate_moving_average(df, 20)
-
 def get_best_k(ticker="KRW-BTC"):
     bestK = 0.5  # 초기 K 값
     interest = 0  # 초기 수익률
     df = load_ohlcv(ticker)  # 데이터 로드
     if df is None or df.empty:
         return bestK  # 데이터가 없으면 초기 K 반환
-    for k in np.arange(0.1, 0.6, 0.05):  # K 값을 0.1부터 0.55까지 반복
+    for k in np.arange(0.1, 0.5, 0.05):  # K 값을 0.1부터 0.5까지 반복
         df['range'] = (df['high'] - df['low']) * k      #변동성 계산
         df['target'] = df['open'] + df['range'].shift(1)  # 매수 목표가 설정
         fee = 0.0005  # 거래 수수료 (0.05%로 설정)
@@ -444,20 +425,20 @@ def trade_sell(ticker):
     else:
         current_price = get_current_price(ticker)  # 현재 가격 재조회
         profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0  # 수익률 계산
-        if profit_rate >= 0.7:  # 수익률이 0.7% 이상일 때
+        if profit_rate >= 0.3:  # 수익률이 0.3% 이상일 때
             while attempts < max_attempts:
                 current_price = get_current_price(ticker)  # 현재 가격 재조회
                 profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0
                 
                 print(f"{ticker} / 시도 {attempts + 1} / {max_attempts} - / 현재가 {current_price} 수익률 {profit_rate:.2f}%")
                 
-                if profit_rate <= 0.6 or profit_rate >= 1.1:
+                if profit_rate >= 0.75:
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)
                     send_discord_message(f"매도: {ticker}/ 현재가 {current_price}/ 수익률 {profit_rate:.2f}%")
                     return sell_order
                 else:
-                    print("수익률 0.6% 이상 1.1% 이하")
-                    time.sleep(0.1)  # 짧은 대기
+                    print("수익률 0.3% 이하")
+                    time.sleep(0.5)  # 짧은 대기
                 
                 attempts += 1  # 조회 횟수 증가
                 
