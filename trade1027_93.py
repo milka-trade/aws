@@ -302,15 +302,15 @@ def get_ai_decision(ticker):
                     },
                      {
                 "type": "text",
-                "text": "And you can find the most profitable way to trade the RSI indicator and apply it to your trading. So, for example, if the RSI is below 30, you buy when it's oversold, and so on, you can find the best technique and apply it."
+                "text": "And you can find the most profitable way to trade the RSI indicator and apply it to your trading."
                     },
                     {
                 "type": "text",
-                "text": "So, based on what we've discussed so far, you use your expertise to analyze the current price based on the chart data provided and tell us whether the coin will rise by more than 1.05 times the current price within 3 hours."
+                "text": "So, based on what we've discussed so far, you use your expertise to analyze the current price based on the chart data provided and tell us whether the coin will rise by more than 1.03 times the current price within 3 hours."
                     },
                     {
                 "type": "text",
-                "text": "So, if your analysis indicates that the price will be more than 1.05 times higher than the current price in 3 hours, please provide a 'BUY' response; if the analysis indicates that the price will be about 1.01 times higher than the current price in 3 hours, please provide a 'HOLD' response; and if the analysis indicates that the price will be lower than the current price in 3 hours, please provide a 'SELL' response in JSON format.\n\nResponse Example:\n{\"decision\": \"BUY\"}\n{\"decision\": \"SELL\"}\n{\"decision\": \"HOLD\"}"
+                "text": "So, if your analysis indicates that the price will be more than 1.03 times higher than the current price in 3 hours, please provide a 'BUY' response; if the analysis indicates that the price will be about 1.01 times higher than the current price in 3 hours, please provide a 'HOLD' response; and if the analysis indicates that the price will be lower than the current price in 3 hours, please provide a 'SELL' response in JSON format.\n\nResponse Example:\n{\"decision\": \"BUY\"}\n{\"decision\": \"SELL\"}\n{\"decision\": \"HOLD\"}"
                     }
                 ]
                 },
