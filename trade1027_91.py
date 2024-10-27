@@ -203,7 +203,7 @@ def filtered_tickers(tickers, held_coins):
 
                     # print(f"cond5: {t} / ma20:{ma20:,.2f} < ma5:{ma5:,.2f}")
                     if ma20 < ma5 :  # Short-term momentum
-                        print(f"cond3: {t} / ma20:{ma20:,.2f} < ma5:{ma5:,.2f}")
+                        # print(f"cond3: {t} / ma20:{ma20:,.2f} < ma5:{ma5:,.2f}")
 
                 # print(f"cond3: {t} / 임계값:{threshold_value:,.2f} < 평균진폭:{atr:,.2f}")
                 # if threshold_value < atr :  # Volatility check
@@ -213,10 +213,10 @@ def filtered_tickers(tickers, held_coins):
                         #     print(f"cond4: {t} / 30 < rsi:{rsi:,.2f} < 60")
 
                         if day_open_price_1 < cur_price < day_open_price_1 * 1.06:
-                                print(f"cond5: {t} / 일봉 시가: {day_open_price_1:,.2f} < price: {cur_price:,.2f} < 일봉 5%:{day_open_price_1*1.06:,.2f}")
+                                # print(f"cond5: {t} / 일봉 시가: {day_open_price_1:,.2f} < price: {cur_price:,.2f} < 일봉 5%:{day_open_price_1*1.06:,.2f}")
                         
                                 if cur_price < df_open_1*1.03 :    
-                                    print(f"cond6: {t} / price:{cur_price:,.2f} < 분봉시가 3%:{df_open_1*1.03:,.2f}")
+                                    # print(f"cond6: {t} / price:{cur_price:,.2f} < 분봉시가 3%:{df_open_1*1.03:,.2f}")
 
                                     ai_decision = get_ai_decision(t)  #7.AI의 판단을 구함
                                     print(f"AI: {t} / {ai_decision}")
@@ -360,7 +360,7 @@ def trade_buy(ticker, k):
     krw = get_balance("KRW")
     buyed_amount = get_balance(ticker.split("-")[1]) 
     max_retries = 20  # Maximum attempts to check if price is within range
-    buy_size = min(krw * 0.9995, 200_000)  # Example: 5% of available KRW balance or 100,000, whichever is smaller            
+    buy_size = krw * 0.9995   #min(krw * 0.9995, 200_000)  # Example: 5% of available KRW balance or 100,000, whichever is smaller            
 
     if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 30_000 :  # 매수 조건 확인
         target_price = get_target_price(ticker, k)
@@ -442,12 +442,12 @@ def trade_sell(ticker):
                 
                 print(f"{ticker} / 시도 {attempts + 1} / {max_attempts} - / 현재가 {current_price} 수익률 {profit_rate:.2f}%")
                 
-                if profit_rate >= 0.75:
+                if profit_rate >= 0.85:
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)
                     send_discord_message(f"매도: {ticker}/ 현재가 {current_price}/ 수익률 {profit_rate:.2f}%")
                     return sell_order
                 else:
-                    print("수익률 0.3% 이하")
+                    print("수익률 0.85% 이하")
                     time.sleep(0.5)  # 짧은 대기
                 
                 attempts += 1  # 조회 횟수 증가
@@ -540,7 +540,7 @@ def buying_logic():
                     else:
                         time.sleep(300)
                 else:
-                    # print("잔고 부족 / 20분 후 다시 확인")
+                    # print("잔고 부족 / 5분 후 다시 확인")
 
                     time.sleep(600)
 
