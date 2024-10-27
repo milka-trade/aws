@@ -358,35 +358,35 @@ def trade_buy(ticker, k):
     target_price = None  # target_price 초기화
 
     if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 50_000 :  # 매수 조건 확인
+        target_price = get_target_price(ticker, k)
+        send_discord_message(f"{ticker} / AI:{ai_decision}")
         if ai_decision == "BUY" :
-            target_price = get_target_price(ticker, k)
-            
         
-        while attempt < max_retries:
-            current_price = get_current_price(ticker)
-            print(f"가격 확인 중: {ticker}, 목표가의 98% {target_price * 0.98:,.2f} / 현재가 {current_price:,.2f} / 목표가 {target_price:,.2f}(시도 {attempt + 1}/{max_retries})")
-            # send_discord_message(f"가격 확인 중: {ticker}, 목표가 {target_price:,.2f} / 현재가 {current_price:,.2f} (시도 {attempt + 1}/{max_retries})")
-            # print(f"[DEBUG] 시도 {attempt + 1} / {max_retries} - 목표가 {target_price:,.2f} / 현재가: {current_price:,.2f}")
+            while attempt < max_retries:
+                current_price = get_current_price(ticker)
+                print(f"가격 확인 중: {ticker}, 목표가의 98% {target_price * 0.98:,.2f} / 현재가 {current_price:,.2f} / 목표가 {target_price:,.2f}(시도 {attempt + 1}/{max_retries})")
+                # send_discord_message(f"가격 확인 중: {ticker}, 목표가 {target_price:,.2f} / 현재가 {current_price:,.2f} (시도 {attempt + 1}/{max_retries})")
+                # print(f"[DEBUG] 시도 {attempt + 1} / {max_retries} - 목표가 {target_price:,.2f} / 현재가: {current_price:,.2f}")
 
-            if target_price * 0.98 <= current_price < target_price * 1.000 :
-                    send_discord_message(f"{ticker}, AI: {ai_decision}")
-                    print(f"매수 시도: {ticker}, 현재가 {current_price:,.2f}")
-                    buy_attempts = 3
-                    for i in range(buy_attempts):
-                        try:
-                            buy_order = upbit.buy_market_order(ticker, buy_size)
-                            print(f"매수 성공: {ticker}, 현재가 {current_price:,.2f}")
-                            send_discord_message(f"매수 성공: {ticker}, 목표가 98% {target_price*0.98:,.2f} < 현재가 {current_price:,.2f} < 목표가 {target_price:,.2f} / AI:{ai_decision} /(시도 {attempt + 1}/{max_retries})")
-                            return buy_order
-                        except Exception as e:
-                            print(f"매수 주문 실행 중 오류 발생: {e}, 재시도 중...({i+1}/{buy_attempts})")
-                            # send_discord_message(f"매수 주문 실행 중 오류 발생: {e}, 재시도 중...({i+1}/{buy_attempts})")
-                            time.sleep(5 * (i + 1))  # Exponential backoff
-                    return "Buy order failed", None
-            else:
-                # print(f"현재가가 목표 범위에 도달하지 않음. 다음 시도로 넘어갑니다.")
-                attempt += 1  # 시도 횟수 증가
-                time.sleep(60)
+                if target_price * 0.98 <= current_price < target_price * 1.000 :
+                        send_discord_message(f"{ticker}, AI: {ai_decision}")
+                        print(f"매수 시도: {ticker}, 현재가 {current_price:,.2f}")
+                        buy_attempts = 3
+                        for i in range(buy_attempts):
+                            try:
+                                buy_order = upbit.buy_market_order(ticker, buy_size)
+                                print(f"매수 성공: {ticker}, 현재가 {current_price:,.2f}")
+                                send_discord_message(f"매수 성공: {ticker}, 목표가 98% {target_price*0.98:,.2f} < 현재가 {current_price:,.2f} < 목표가 {target_price:,.2f} / AI:{ai_decision} /(시도 {attempt + 1}/{max_retries})")
+                                return buy_order
+                            except Exception as e:
+                                print(f"매수 주문 실행 중 오류 발생: {e}, 재시도 중...({i+1}/{buy_attempts})")
+                                # send_discord_message(f"매수 주문 실행 중 오류 발생: {e}, 재시도 중...({i+1}/{buy_attempts})")
+                                time.sleep(5 * (i + 1))  # Exponential backoff
+                        return "Buy order failed", None
+                else:
+                    # print(f"현재가가 목표 범위에 도달하지 않음. 다음 시도로 넘어갑니다.")
+                    attempt += 1  # 시도 횟수 증가
+                    time.sleep(60)
 
         # 10회 시도 후 가격 범위에 도달하지 못한 경우
         print(f"10회 시도완료: {ticker}, 목표가 범위에 도달하지 못함")
