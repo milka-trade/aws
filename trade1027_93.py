@@ -184,14 +184,6 @@ def filtered_tickers(tickers, held_coins):
             day_open_price_1 = df_day['open'].iloc[-1]  #9시 기준 당일 시가 
 
             df_open_1 = df['open'].iloc[-1]
-            # df_open_2 = df['open'].iloc[-2]
-            # df_open_3 = df['open'].iloc[-3]
-            # df_close_1 = df['close'].iloc[-1]
-            # df_close_2 = df['close'].iloc[-2]
-            # df_close_3 = df['close'].iloc[-3] 
-            
-            # last_day_date = df_day.index[-1]
-            # last_date = df.index[-1]
 
             # New Indicators and Patterns
             rsi = get_rsi(t, 21)
