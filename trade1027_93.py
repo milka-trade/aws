@@ -358,22 +358,22 @@ def get_ai_decision(ticker):
 def trade_buy(ticker, k):
     krw = get_balance("KRW")
     buyed_amount = get_balance(ticker.split("-")[1]) 
-    max_retries = 10  # Maximum attempts to check if price is within range
-    buy_size = min(krw * 0.9995, 200_000)  # Example: 5% of available KRW balance or 100,000, whichever is smaller            
+    max_retries = 10  
+    buy_size = min(krw * 0.9995, 200_000)  
+    ai_decision = get_ai_decision(ticker)  
 
-    if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 30_000 :  # 매수 조건 확인
-        target_price = get_target_price(ticker, k)
-        attempt = 0  # 시도 횟수 초기화
+    if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 50000 :  # 매수 조건 확인
+        if ai_decision == "BUY" :
+            target_price = get_target_price(ticker, k)
+            attempt = 0  # 시도 횟수 초기화
         
         while attempt < max_retries:
-            ai_decision = get_ai_decision(ticker)  #7.AI의 판단을 구함
             current_price = get_current_price(ticker)
             print(f"가격 확인 중: {ticker}, 목표가의 98% {target_price * 0.98:,.2f} / 현재가 {current_price:,.2f} / 목표가 {target_price:,.2f}(시도 {attempt + 1}/{max_retries})")
             # send_discord_message(f"가격 확인 중: {ticker}, 목표가 {target_price:,.2f} / 현재가 {current_price:,.2f} (시도 {attempt + 1}/{max_retries})")
             # print(f"[DEBUG] 시도 {attempt + 1} / {max_retries} - 목표가 {target_price:,.2f} / 현재가: {current_price:,.2f}")
 
             if target_price * 0.98 <= current_price < target_price * 1.000 :
-                if ai_decision == "BUY" :
                     send_discord_message(f"{ticker}, AI: {ai_decision}")
                     print(f"매수 시도: {ticker}, 현재가 {current_price:,.2f}")
                     buy_attempts = 3
@@ -522,15 +522,15 @@ def buying_logic():
                         # send_discord_message(f"선정코인 : {best_ticker} / k값 : {best_k:,.2f} / 수익률 : {interest:,.2f}")
                         result = trade_buy(best_ticker, best_k)
                         if result:  # 매수 성공 여부 확인
-                            time.sleep(60)
+                            time.sleep(30)
                         else:
-                            time.sleep(60)
+                            time.sleep(30)
                     else:
-                        time.sleep(60)
+                        time.sleep(30)
                 else:
                     # print("잔고 부족 / 20분 후 다시 확인")
 
-                    time.sleep(60)
+                    time.sleep(600)
 
         except Exception as e:
             print(f"buying_logic / 에러 발생: {e}")
