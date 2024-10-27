@@ -194,13 +194,13 @@ def filtered_tickers(tickers, held_coins):
             min60_value = df['value'].iloc[-2]
             atr = get_atr(t, 21)
 
-            if day_value_1 > 5_000_000_000 or day_value_2 > 15_000_000_000 :    
+            if day_value_1 > 10_000_000_000 or day_value_2 > 20_000_000_000 :    
                 # print(f"cond1: {t} / 당일 거래량 > 10십억 or 전일 거래량 > 25십억")
 
                 if threshold_value < atr :  # Volatility check
                     # print(f"cond2: {t} / 임계값:{threshold_value:,.2f} < 평균진폭:{atr:,.2f}")
 
-                    if ma20 < ma5 :  # Short-term momentum
+                    if ma20 < ma5 < cur_price:  # Short-term momentum
                         # print(f"cond3: {t} / ma20 < ma5")
 
                         # print(f"cond4: {t} / rsi{rsi:,.2f} < 60 / ma50:{ma50:,.2f} < price:{cur_price:,.2f}")
@@ -212,8 +212,11 @@ def filtered_tickers(tickers, held_coins):
                         
                                 if cur_price < df_open_1*1.03 :    
                                     # print(f"cond6: {t} / 분봉 3프로 이내 상승")
-                                        
-                                    filtered_tickers.append(t)
+                             
+                                    ai_decision = get_ai_decision(t)  
+                                    send_discord_message(f"{t} / AI: {ai_decision}")
+                                    if ai_decision == "BUY" :
+                                        filtered_tickers.append(t)
             
         except Exception as e:
             send_discord_message(f"filtered_tickers/Error processing ticker {t}: {e}")
@@ -352,31 +355,27 @@ def trade_buy(ticker, k):
     buyed_amount = get_balance(ticker.split("-")[1]) 
     max_retries = 10  
     buy_size = min(krw * 0.9995, 200_000)  
-    ai_decision = get_ai_decision(ticker)  
-
+    
     attempt = 0  # 시도 횟수 초기화
     target_price = None  # target_price 초기화
 
     if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 50_000 :  # 매수 조건 확인
         target_price = get_target_price(ticker, k)
-        send_discord_message(f"{ticker} / AI:{ai_decision}")
-        if ai_decision == "BUY" :
         
-            while attempt < max_retries:
+        while attempt < max_retries:
                 current_price = get_current_price(ticker)
                 print(f"가격 확인 중: {ticker}, 목표가의 98% {target_price * 0.98:,.2f} / 현재가 {current_price:,.2f} / 목표가 {target_price:,.2f}(시도 {attempt + 1}/{max_retries})")
                 # send_discord_message(f"가격 확인 중: {ticker}, 목표가 {target_price:,.2f} / 현재가 {current_price:,.2f} (시도 {attempt + 1}/{max_retries})")
                 # print(f"[DEBUG] 시도 {attempt + 1} / {max_retries} - 목표가 {target_price:,.2f} / 현재가: {current_price:,.2f}")
 
                 if target_price * 0.98 <= current_price < target_price * 1.000 :
-                        send_discord_message(f"{ticker}, AI: {ai_decision}")
                         print(f"매수 시도: {ticker}, 현재가 {current_price:,.2f}")
                         buy_attempts = 3
                         for i in range(buy_attempts):
                             try:
                                 buy_order = upbit.buy_market_order(ticker, buy_size)
                                 print(f"매수 성공: {ticker}, 현재가 {current_price:,.2f}")
-                                send_discord_message(f"매수 성공: {ticker}, 목표가 98% {target_price*0.98:,.2f} < 현재가 {current_price:,.2f} < 목표가 {target_price:,.2f} / AI:{ai_decision} /(시도 {attempt + 1}/{max_retries})")
+                                send_discord_message(f"매수 성공: {ticker}, 목표가 98% {target_price*0.98:,.2f} < 현재가 {current_price:,.2f} < 목표가 {target_price:,.2f} /(시도 {attempt + 1}/{max_retries})")
                                 return buy_order
                             except Exception as e:
                                 print(f"매수 주문 실행 중 오류 발생: {e}, 재시도 중...({i+1}/{buy_attempts})")
@@ -517,11 +516,11 @@ def buying_logic():
                         send_discord_message(f"선정코인 : {best_ticker} / k값 : {best_k:,.2f} / 수익률 : {interest:,.2f}")
                         result = trade_buy(best_ticker, best_k)
                         if result:  # 매수 성공 여부 확인
-                            time.sleep(30)
+                            time.sleep(300)
                         else:
-                            time.sleep(30)
+                            time.sleep(300)
                     else:
-                        time.sleep(30)
+                        time.sleep(300)
                 else:
                     # print("잔고 부족 / 20분 후 다시 확인")
 
