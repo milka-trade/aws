@@ -201,11 +201,11 @@ def filtered_tickers(tickers, held_coins):
                     # print(f"cond2: {t} / 임계값:{threshold_value:,.2f} < 평균진폭:{atr:,.2f}")
 
                     if ma20 < ma5 :  # Short-term momentum
-                        # print(f"cond3: {t} / ma20 < ma5")
+                        print(f"cond3: {t} / ma20 < ma5")
 
                         # print(f"cond4: {t} / rsi{rsi:,.2f} < 60 / ma50:{ma50:,.2f} < price:{cur_price:,.2f}")
-                        if rsi < 60 and ma50 < cur_price : # RSI in a favorable range
-                            print(f"cond4: {t} / rsi:{rsi:,.2f} < 60 / ma50:{ma50:,.2f} < price:{cur_price:,.2f}")
+                        if rsi < 70 and ma50 < cur_price : # RSI in a favorable range
+                            print(f"cond4: {t} / rsi:{rsi:,.2f} < 70 / ma50:{ma50:,.2f} < price:{cur_price:,.2f}")
 
                             if cur_price < day_open_price_1 * 1.1:
                                 print(f"cond5: {t} / 10% 이내 상승")
@@ -354,10 +354,12 @@ def trade_buy(ticker, k):
     buy_size = min(krw * 0.9995, 200_000)  
     ai_decision = get_ai_decision(ticker)  
 
+    attempt = 0  # 시도 횟수 초기화
+    
     if buyed_amount == 0 and ticker.split("-")[1] not in ["BTC", "ETH"] and krw >= 50000 :  # 매수 조건 확인
         if ai_decision == "BUY" :
             target_price = get_target_price(ticker, k)
-            attempt = 0  # 시도 횟수 초기화
+            
         
         while attempt < max_retries:
             current_price = get_current_price(ticker)
