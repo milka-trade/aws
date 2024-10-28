@@ -194,24 +194,24 @@ def filtered_tickers(tickers, held_coins):
             min60_value = df['value'].iloc[-2]
             atr = get_atr(t, 21)
 
-            if day_value_1 > 10_000_000_000 or day_value_2 > 20_000_000_000 :    
+            if day_value_1 > 15_000_000_000 or day_value_2 > 25_000_000_000 :    
                 # print(f"cond1: {t} / 당일 거래량 > 10십억 or 전일 거래량 > 25십억")
 
                 if threshold_value < atr :  # Volatility check
                     # print(f"cond2: {t} / 임계값:{threshold_value:,.2f} < 평균진폭:{atr:,.2f}")
 
-                    if ma20 < ma5 < cur_price:  # Short-term momentum
+                    if ma20 < ma5 :  # Short-term momentum
                         # print(f"cond3: {t} / ma20 < ma5")
 
                         # print(f"cond4: {t} / rsi{rsi:,.2f} < 60 / ma50:{ma50:,.2f} < price:{cur_price:,.2f}")
-                        if rsi < 65 and ma50 < cur_price : # RSI in a favorable range
+                        if rsi < 70 and ma50 < cur_price : # RSI in a favorable range
                             # print(f"cond4: {t} / rsi:{rsi:,.2f} < 65 / ma50:{ma50:,.2f} < price:{cur_price:,.2f}")
 
-                            if cur_price < day_open_price_1 * 1.1:
+                            if cur_price < day_open_price_1 * 1.6:
                                 # print(f"cond5: {t} / 10% 이내 상승")
                         
                                 if cur_price < df_open_1*1.03 :    
-                                    # print(f"cond6: {t} / 분봉 3프로 이내 상승")
+                                    print(f"cond6: {t} / 분봉 3프로 이내 상승")
                              
                                     ai_decision = get_ai_decision(t)  
                                     send_discord_message(f"{t} / AI: {ai_decision}")
@@ -409,15 +409,19 @@ def trade_sell(ticker):
     
     max_attempts = 1_000  # 최대 조회 횟수
     attempts = 0  # 현재 조회 횟수
+    profit_rate = 0
 
     if sell_start <= selltime <= sell_end:      # 매도 제한시간이면
         sell_order = upbit.sell_market_order(ticker, buyed_amount)  # 시장가로 전량 매도
+        current_price = get_current_price(ticker)  # 현재가 조회
+        profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0  # 수익률 계산
         send_discord_message(f"전량 매도: {ticker}, 현재가 {current_price} 수익률 {profit_rate:.2f}%")
-        return sell_order           
+        return sell_order               
     
     else:
         current_price = get_current_price(ticker)  # 현재 가격 재조회
         profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0  # 수익률 계산
+        
         if profit_rate >= 0.5:  # 수익률이 0.4% 이상일 때
             while attempts < max_attempts:
                 current_price = get_current_price(ticker)  # 현재 가격 재조회
@@ -425,7 +429,7 @@ def trade_sell(ticker):
                 
                 print(f"{ticker} / 시도 {attempts + 1} / {max_attempts} - / 현재가 {current_price} 수익률 {profit_rate:.2f}%")
                 
-                if profit_rate >= 0.85:
+                if profit_rate >= 0.75:
                     sell_order = upbit.sell_market_order(ticker, buyed_amount)
                     send_discord_message(f"매도: {ticker}/ 현재가 {current_price}/ 수익률 {profit_rate:.2f}%")
                     return sell_order
