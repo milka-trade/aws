@@ -100,8 +100,8 @@ def get_best_k(ticker="KRW-BTC"):
     return bestK
 
 def get_rsi(ticker, period):
-    # df_rsi = pyupbit.get_ohlcv(ticker, interval="day", count=15)
-    df_rsi = load_ohlcv(ticker)
+    df_rsi = pyupbit.get_ohlcv(ticker, interval="minute5", count=period)
+    # df_rsi = load_ohlcv(ticker)
     # df_rsi = pyupbit.get_ohlcv(ticker, interval="day", count=15)
     delta = df_rsi['close'].diff(1)
     gain = delta.where(delta > 0, 0).rolling(window=period).mean()
@@ -112,8 +112,8 @@ time.sleep(1)  # API 호출 제한을 위한 대기
 
 def get_atr(ticker, period):
     try:
-        # df_atr_day = pyupbit.get_ohlcv(ticker, interval="day", count=15)
-        df_atr_day = load_ohlcv(ticker)
+        df_atr_day = pyupbit.get_ohlcv(ticker, interval="minute5", count=period)
+        # df_atr_day = load_ohlcv(ticker)
         time.sleep(0.5)  # API 호출 제한을 위한 대기
     except Exception as e:
         print(f"API call failed: {e}")
@@ -186,13 +186,13 @@ def filtered_tickers(tickers, held_coins):
             df_open_1 = df['open'].iloc[-1]
 
             # New Indicators and Patterns
-            rsi = get_rsi(t, 21)
+            rsi = get_rsi(t, 14)
             ma20 = get_sma(t, 20)
             ma5 = get_sma(t, 5)
             ma50 = get_sma(t, 50)
             avg_week_value = df_day['value'].rolling(window=7).mean().iloc[-1]
             min60_value = df['value'].iloc[-2]
-            atr = get_atr(t, 21)
+            atr = get_atr(t, 14)
 
             # if day_value_1 > 25_000_000_000 or day_value_2 > 20_000_000_000 :    
                 # print(f"cond1: {t} / 당일 거래량 > 10십억 or 전일 거래량 > 25십억")
@@ -204,7 +204,7 @@ def filtered_tickers(tickers, held_coins):
                         # print(f"cond3: {t} / ma20 < ma5")
 
                         # print(f"cond4: {t} / rsi{rsi:,.2f} < 60 / ma50:{ma50:,.2f} < price:{cur_price:,.2f}")
-                        if 30 < rsi < 45 :  # RSI in a favorable range
+                        if 30 < rsi < 40 :  # RSI in a favorable range
                             # print(f"cond4: {t} / rsi:{rsi:,.2f} < 65 / ma50:{ma50:,.2f} < price:{cur_price:,.2f}")
 
                             if cur_price < day_open_price_1 * 1.05:
@@ -393,7 +393,7 @@ def trade_sell(ticker):
     current_price = get_current_price(ticker)
     profit_rate = (current_price - avg_buy_price) / avg_buy_price * 100 if avg_buy_price > 0 else 0  # 수익률 계산
     
-    max_attempts = 1_000  # 최대 조회 횟수
+    max_attempts = 100  # 최대 조회 횟수
     attempts = 0  # 현재 조회 횟수
 
     if sell_start <= selltime <= sell_end:      # 매도 제한시간이면
