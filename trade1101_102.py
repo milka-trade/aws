@@ -301,10 +301,13 @@ def filtered_tickers(tickers, held_coins):
             # if threshold_value < atr :  # Volatility check
             #     print(f"cond2: {t} / 임계값:{threshold_value:,.2f} < 평균진폭:{atr:,.2f}")
             
-            print(f"검증용: {t} / ema200:{ema200:,.2f} < ha_candle:{last_ha_close:,.2f}")
-            print(f"검증용: {t} / Pre_s_RSI:{previous_stoch_rsi:,.2f} <= 0.2 < Last_s_RSI:{last_stoch_rsi:,.2f}")
-            if last_ha_close > ema200 and previous_stoch_rsi <= 0.20 and last_stoch_rsi > 0.20:
-                    print(f"cond2-1: {t} / ema200:{ema200:,.2f} < ha_candle:{last_ha_close:,.2f}")
+            # print(f"검증용: {t} / ema200:{ema200:,.2f} < ha_candle:{last_ha_close:,.2f}")
+            
+            if last_ha_close > ema200 :
+                print(f"cond2-1: {t} / ema200:{ema200:,.2f} < ha_candle:{last_ha_close:,.2f}")
+
+                # print(f"검증용: {t} / Pre_s_RSI:{previous_stoch_rsi:,.2f} <= 0.2 < Last_s_RSI:{last_stoch_rsi:,.2f}")
+                if previous_stoch_rsi <= 0.20 and last_stoch_rsi > 0.20:
                     print(f"cond2-2: {t} / Pre_s_RSI:{previous_stoch_rsi:,.2f} <= 0.2 < Last_s_RSI:{last_stoch_rsi:,.2f}")
                     # if previous_stoch_rsi <= 0.20 and last_stoch_rsi > 0.20:
                     #         print(f"cond2-2: {t} / 스토캐스틱RSI1:{previous_stoch_rsi:,.2f} > RSI2:{last_stoch_rsi:,.2f}")
