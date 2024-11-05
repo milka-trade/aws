@@ -171,17 +171,17 @@ def calculate_ha_candles(ticker):
     ha_df = pd.DataFrame(index=df.index)
 
     # 첫 번째 하이킨아시 캔들 시가, 종가는 일반 캔들과 동일
-    ha_df.loc[0, 'HA Close'] = (df['open'].iloc[0] + df['high'].iloc[0] + df['low'].iloc[0] + df['close'].iloc[0]) / 4
-    ha_df.loc[0, 'HA Open'] = (df['open'].iloc[0] + df['close'].iloc[0]) / 2
-    ha_df.loc[0, 'HA High'] = df['high'].iloc[0]
-    ha_df.loc[0, 'HA Low'] = df['low'].iloc[0]
+    ha_df.loc[0, 'HA_Close'] = (df['open'].iloc[0] + df['high'].iloc[0] + df['low'].iloc[0] + df['close'].iloc[0]) / 4
+    ha_df.loc[0, 'HA_Open'] = (df['open'].iloc[0] + df['close'].iloc[0]) / 2
+    ha_df.loc[0, 'HA_High'] = df['high'].iloc[0]
+    ha_df.loc[0, 'HA_Low'] = df['low'].iloc[0]
 
     # 나머지 하이킨아시 캔들 계산
     for i in range(1, len(df)):
-        ha_df.loc[i, 'HA Open'] = (ha_df.loc[i - 1, 'HA Open'] + ha_df.loc[i - 1, 'HA Close']) / 2
-        ha_df.loc[i, 'HA Close'] = (df['open'].iloc[i] + df['high'].iloc[i] + df['low'].iloc[i] + df['close'].iloc[i]) / 4
-        ha_df.loc[i, 'HA High'] = max(df['high'].iloc[i], ha_df.loc[i, 'HA Open'], ha_df.loc[i, 'HA Close'])
-        ha_df.loc[i, 'HA Low'] = min(df['low'].iloc[i], ha_df.loc[i, 'HA Open'], ha_df.loc[i, 'HA Close'])
+        ha_df.loc[i, 'HA_Open'] = (ha_df.loc[i - 1, 'HA_Open'] + ha_df.loc[i - 1, 'HA_Close']) / 2
+        ha_df.loc[i, 'HA_Close'] = (df['open'].iloc[i] + df['high'].iloc[i] + df['low'].iloc[i] + df['close'].iloc[i]) / 4
+        ha_df.loc[i, 'HA_High'] = max(df['high'].iloc[i], ha_df.loc[i, 'HA_Open'], ha_df.loc[i, 'HA_Close'])
+        ha_df.loc[i, 'HA_Low'] = min(df['low'].iloc[i], ha_df.loc[i, 'HA_Open'], ha_df.loc[i, 'HA_Close'])
 
     return ha_df
 
@@ -272,6 +272,7 @@ def filtered_tickers(tickers, held_coins):
 
             # New Indicators and Patterns #2
             ha_df = calculate_ha_candles(t)   #하이킨 아시 캔들 계산
+            # print(ha_df)
             if ha_df.empty or 'HA_Close' not in ha_df.columns:
                 raise ValueError("ha_df:Heikin Ashi DataFrame is empty or HA_Close column is missing.")
             
@@ -327,6 +328,7 @@ def filtered_tickers(tickers, held_coins):
                                         filtered_tickers.append(t)
             
         except Exception as e:
+            print(f"filtered_tickers/Error processing ticker {t}: {e}")
             send_discord_message(f"filtered_tickers/Error processing ticker {t}: {e}")
             time.sleep(5)  # API 호출 제한을 위한 대기
 
