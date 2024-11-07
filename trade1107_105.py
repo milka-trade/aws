@@ -323,7 +323,7 @@ def filtered_tickers(tickers, held_coins):
             # print(f"검증용: {t} / Pre_s_RSI:{previous_stoch_rsi:,.2f} <= 0.2 < Last_s_RSI:{last_stoch_rsi:,.2f}")
                 if pre_wma200 < last_wma200 and last_ha_open < last_ha_close:
                     # print(f"검증: {t} Last_s_RSI:{last_stoch_rsi:,.2f} / 0.2")
-                    if last_stoch_rsi < 0.2 :
+                    if 0 < last_stoch_rsi < 0.2 :
                         print(f"cond2-5: {t} Last_s_RSI:{last_stoch_rsi:,.2f} > 0.2")
                     # print(f"cond2-1: {t} / pre_ema200:{pre_wma200:,.2f} < lsat_ema200:{last_wma200:,.2f}")
                     # if last_ha_close > last_ha_open :
@@ -490,6 +490,7 @@ def trade_buy(ticker, k):
         
         while attempt < max_retries:
                 current_price = get_current_price(ticker)
+                send_discord_message(f"{ticker} /목표가: {target_price} / 현재가{current_price}")
                 # print(f"가격 확인 중: {ticker}, 목표가의 98% {target_price * 0.98:,.2f} / 현재가 {current_price:,.2f} / 목표가 {target_price:,.2f}(시도 {attempt + 1}/{max_retries})")
                 # send_discord_message(f"가격 확인 중: {ticker}, 목표가 {target_price:,.2f} / 현재가 {current_price:,.2f} (시도 {attempt + 1}/{max_retries})")
                 # print(f"[DEBUG] 시도 {attempt + 1} / {max_retries} - 목표가 {target_price:,.2f} / 현재가: {current_price:,.2f}")
