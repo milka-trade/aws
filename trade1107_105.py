@@ -495,7 +495,7 @@ def trade_buy(ticker, k):
                 # send_discord_message(f"가격 확인 중: {ticker}, 목표가 {target_price:,.2f} / 현재가 {current_price:,.2f} (시도 {attempt + 1}/{max_retries})")
                 # print(f"[DEBUG] 시도 {attempt + 1} / {max_retries} - 목표가 {target_price:,.2f} / 현재가: {current_price:,.2f}")
 
-                if target_price * 0.98 <= current_price < target_price * 1.000 :
+                if current_price < target_price :
                         print(f"매수 시도: {ticker}")
                         buy_attempts = 3
                         for i in range(buy_attempts):
